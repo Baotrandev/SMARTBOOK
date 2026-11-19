@@ -1,0 +1,257 @@
+﻿
+@model SmartBook.Models.book
+
+@{
+    ViewBag.Title = "Chi tiết sách";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Kiểm tra hình ảnh
+    string imagePath = Model.cover_image_url;
+
+    if (string.IsNullOrWhiteSpace(imagePath))
+    {
+        imagePath = "~/Images/no-image.png";
+    }
+
+    // Kiểm tra danh mục
+    string categoryName = "Chưa phân loại";
+
+    if (Model.category != null)
+    {
+        categoryName = Model.category.category_name;
+    }
+
+    // Kiểm tra nhà xuất bản
+    string publisherName = "Chưa cập nhật";
+
+    if (Model.publisher != null)
+    {
+        publisherName = Model.publisher.publisher_name;
+    }
+
+    // Kiểm tra ngày xuất bản
+    string publicationDate = "Chưa cập nhật";
+
+    if (Model.publication_date.HasValue)
+    {
+        publicationDate = Model.publication_date.Value.ToString("dd/MM/yyyy");
+    }
+}
+
+<style>
+    .book-detail {
+        max-width: 1100px;
+        margin: 35px auto;
+        padding: 25px;
+        background: #fff;
+        border: 1px solid #e5ebe7;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,.05);
+    }
+
+        .book-detail h2 {
+            color: #183b36;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+    .book-image {
+        width: 100%;
+        max-width: 300px;
+        height: 400px;
+        object-fit: contain;
+        border-radius: 10px;
+        border: 1px solid #eee;
+        padding: 10px;
+        background: #fafafa;
+    }
+
+    .book-info h3 {
+        color: #183b36;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .book-info p {
+        font-size: 14px;
+        color: #52665e;
+        margin-bottom: 13px;
+        line-height: 1.6;
+    }
+
+    .book-info strong {
+        color: #183b36;
+    }
+
+    .book-price {
+        color: #c45d4a;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .book-description {
+        background: #f5faf7;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+
+        .book-description h5 {
+            color: #183b36;
+            font-weight: 800;
+        }
+
+        .book-description p {
+            margin-bottom: 0;
+            white-space: pre-line;
+        }
+
+    .btn-edit {
+        background: #e9a23b;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .btn-back {
+        background: #64756e;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+        .btn-edit:hover,
+        .btn-back:hover {
+            color: #fff;
+            opacity: .85;
+            text-decoration: none;
+        }
+</style>
+
+<div class="container">
+
+    <div class="book-detail">
+
+        <h2>CHI TIẾT SÁCH</h2>
+
+        <hr />
+
+        <div class="row">
+
+            <!-- HÌNH ẢNH SÁCH -->
+            <div class="col-md-4 text-center mb-4">
+
+                <img src="@Url.Content(imagePath)"
+                     class="book-image"
+                     alt="@Model.book_title" />
+
+            </div>
+
+            <!-- THÔNG TIN SÁCH -->
+            <div class="col-md-8 book-info">
+
+                <h3>@Model.book_title</h3>
+
+                <p>
+                    <strong>Mã sách:</strong>
+                    @Model.book_id
+                </p>
+
+                <p>
+                    <strong>ISBN:</strong>
+                    @Model.ISBN
+                </p>
+
+                <p>
+                    <strong>Danh mục:</strong>
+                    @categoryName
+                </p>
+
+                <p>
+                    <strong>Nhà xuất bản:</strong>
+                    @publisherName
+                </p>
+
+                <p>
+                    <strong>Ngày xuất bản:</strong>
+                    @publicationDate
+                </p>
+
+                <p>
+                    <strong>Số trang:</strong>
+                    @Model.page_count
+                </p>
+
+                <p>
+                    <strong>Ngôn ngữ:</strong>
+                    @(string.IsNullOrWhiteSpace(Model.language)
+                        ? "Chưa cập nhật"
+                        : Model.language)
+                </p>
+
+                <p>
+                    <strong>Hình thức:</strong>
+                    @(string.IsNullOrWhiteSpace(Model.book_format)
+                        ? "Chưa cập nhật"
+                        : Model.book_format)
+                </p>
+
+                <p>
+                    <strong>Giá gốc:</strong>
+                    @Model.original_price.ToString("N0") đ
+                </p>
+
+                <p>
+                    <strong>Giá bán:</strong>
+                    <span class="book-price">
+                        @Model.sale_price.ToString("N0") đ
+                    </span>
+                </p>
+
+                <p>
+                    <strong>Trạng thái:</strong>
+                    @Model.status
+                </p>
+
+                <!-- MÔ TẢ -->
+                <div class="book-description">
+
+                    <h5>Mô tả sách</h5>
+
+                    <p>
+                        @(string.IsNullOrWhiteSpace(Model.description)
+                            ? "Chưa có mô tả cho sách này."
+                            : Model.description)
+                    </p>
+
+                </div>
+
+                <!-- NÚT CHỨC NĂNG -->
+                @Html.ActionLink(
+                         "Chỉnh sửa",
+                         "Edit",
+                         new { id = Model.book_id },
+                         new { @class = "btn-edit" }
+                     )
+
+                @Html.ActionLink(
+                         "Quay lại",
+                         "Index",
+                         null,
+                         new { @class = "btn-back" }
+                     )
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

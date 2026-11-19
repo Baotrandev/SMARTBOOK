@@ -1,0 +1,203 @@
+﻿
+@model SmartBook.Models.BookReviewsViewModel
+
+@using System
+@using System.Linq
+
+<link href="@Url.Content("~/Content/review.css")" rel="stylesheet" />
+
+<div class="book-reviews" id="book-reviews">
+
+    <div class="review-heading">
+        <h2>Đánh giá sản phẩm</h2>
+        <p>Chia sẻ cảm nhận của bạn về cuốn sách này.</p>
+    </div>
+
+    @if (TempData["ReviewMessage"] != null)
+    {
+        <div class="review-message">
+            @TempData["ReviewMessage"]
+        </div>
+    }
+
+    <!-- ĐIỂM ĐÁNH GIÁ TRUNG BÌNH -->
+    <div class="review-overview">
+
+        <div class="review-average">
+            <strong>@Model.AverageRating.ToString("0.0")</strong>
+
+            <div class="review-stars">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <span class="@(i <= Math.Round(Model.AverageRating) ? "star active" : "star")">
+                        ★
+                    </span>
+                }
+            </div>
+
+            <small>@Model.TotalReviews đánh giá</small>
+        </div>
+
+        <div class="review-overview-text">
+            @if (Model.TotalReviews > 0)
+            {
+                <strong>Khách hàng nói gì về cuốn sách?</strong>
+                <p>
+                    Điểm trung bình được tính từ
+                    @Model.TotalReviews đánh giá đã được duyệt.
+                </p>
+            }
+            else
+            {
+                <strong>Chưa có đánh giá</strong>
+                <p>
+                    Hãy là người đầu tiên chia sẻ cảm nhận về cuốn sách.
+                </p>
+            }
+        </div>
+
+    </div>
+
+    <hr />
+
+    <!-- FORM GỬI ĐÁNH GIÁ -->
+    <div class="review-form">
+
+        <h3>Viết đánh giá của bạn</h3>
+
+        @if (Session["CustomerID"] != null)
+        {
+            <p>Đường dẫn gửi đánh giá: @Url.Action("Submit", "Review")</p>
+            using (Html.BeginForm(
+                "Submit",
+                "Review",
+                FormMethod.Post,
+                new { @class = "review-submit-form" }))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.Hidden("BookId", Model.BookId)
+
+                <div class="form-group">
+                    <label>Chọn số sao</label>
+
+                    <div class="rating-select">
+
+                        @for (int i = 5; i >= 1; i--)
+                        {
+                            <input type="radio"
+                                   id="rating-@i"
+                                   name="Rating"
+                                   value="@i"
+                                   required />
+
+                            <label for="rating-@i"
+                                   title="@i sao">
+                                ★
+                            </label>
+                        }
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ReviewTitle">
+                        Tiêu đề đánh giá
+                    </label>
+
+                    <input type="text"
+                           id="ReviewTitle"
+                           name="ReviewTitle"
+                           maxlength="200"
+                           class="form-control"
+                           placeholder="Ví dụ: Một cuốn sách rất đáng đọc" />
+                </div>
+
+                <div class="form-group">
+                    <label for="ReviewContent">
+                        Nội dung nhận xét
+                    </label>
+
+                    <textarea id="ReviewContent"
+                              name="ReviewContent"
+                              maxlength="1000"
+                              rows="4"
+                              class="form-control"
+                              placeholder="Chia sẻ cảm nhận của bạn về nội dung, hình thức và chất lượng sách..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit-review">
+                    GỬI ĐÁNH GIÁ
+                </button>
+            }
+        }
+        else
+        {
+            <p>
+                Vui lòng
+                <a href="@Url.Action("Login", "Account")">
+                    đăng nhập
+                </a>
+                để gửi đánh giá sản phẩm.
+            </p>
+        }
+
+    </div>
+
+    <hr />
+
+    <!-- DANH SÁCH ĐÁNH GIÁ -->
+    <div class="review-list">
+
+        <h3>Nhận xét từ khách hàng</h3>
+
+        @if (Model.Reviews != null && Model.Reviews.Any())
+        {
+            foreach (var review in Model.Reviews)
+            {
+                <div class="review-item">
+
+                    <div class="review-item-header">
+
+                        <div>
+                            <strong>@review.CustomerName</strong>
+
+                            <div class="review-stars">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <span class="@(i <= review.Rating ? "star active" : "star")">
+                                        ★
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <small>
+                            @review.ReviewDate.ToString("dd/MM/yyyy")
+                        </small>
+
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(review.ReviewTitle))
+                    {
+                        <h4>@review.ReviewTitle</h4>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(review.ReviewContent))
+                    {
+                        <p>@review.ReviewContent</p>
+                    }
+
+                </div>
+            }
+        }
+        else
+        {
+            <div class="review-empty">
+                Chưa có nhận xét nào được hiển thị.
+            </div>
+        }
+
+    </div>
+
+</div>

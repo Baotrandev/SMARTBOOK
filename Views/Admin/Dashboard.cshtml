@@ -1,0 +1,430 @@
+﻿
+@model SmartBook.ViewModels.AdminDashboardViewModel
+
+@using System.Linq
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Tổng quan";
+
+    var monthlyRevenue = Model.MonthlyRevenue;
+    var recentOrders = Model.RecentOrders;
+
+    decimal maxRevenue = monthlyRevenue != null && monthlyRevenue.Any()
+        ? monthlyRevenue.Max(x => x.Revenue)
+        : 1m;
+}
+<div class="page-heading">
+    <h2>Tổng quan cửa hàng</h2>
+    <p>
+        Xin chào, @(ViewBag.AdminName ?? "Quản trị viên")!
+        Chào mừng bạn đến với SmartBook.
+    </p>
+</div>
+
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 17px;
+        margin-bottom: 25px;
+    }
+
+    .stat-card, .panel {
+        background: #fff;
+        border: 1px solid #e8efeb;
+        border-radius: 12px;
+    }
+
+    .stat-card {
+        padding: 21px;
+    }
+
+    .stat-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 17px;
+    }
+
+    .stat-icon {
+        width: 43px;
+        height: 43px;
+        border-radius: 10px;
+        background: #e7f1ed;
+        color: #39766b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .stat-label {
+        color: #82938c;
+        font-size: 12px;
+    }
+
+    .stat-number {
+        font-size: 25px;
+        color: #183b36;
+        font-weight: 800;
+        margin-top: 8px;
+        overflow-wrap: anywhere;
+    }
+
+    .stat-note {
+        color: #82938c;
+        font-size: 11px;
+        margin-top: 7px;
+    }
+
+    .panel {
+        padding: 23px;
+        margin-bottom: 22px;
+    }
+
+    .panel-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+
+        .panel-heading h3 {
+            color: #183b36;
+            font-size: 16px;
+            margin: 0;
+        }
+
+    .revenue-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 18px;
+        min-height: 245px;
+        padding: 20px 12px 5px;
+        border-bottom: 1px solid #e8efeb;
+        overflow-x: auto;
+    }
+
+    .revenue-column {
+        flex: 1 0 65px;
+        min-width: 65px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        height: 220px;
+        gap: 9px;
+    }
+
+    .revenue-value {
+        color: #39766b;
+        font-size: 10px;
+        font-weight: 700;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .revenue-bar-wrap {
+        height: 165px;
+        width: 38px;
+        display: flex;
+        align-items: flex-end;
+        background: #f1f6f3;
+        border-radius: 7px 7px 0 0;
+        overflow: hidden;
+    }
+
+    .revenue-bar {
+        width: 100%;
+        min-height: 3px;
+        background: linear-gradient(180deg, #75a99a, #315e50);
+        border-radius: 7px 7px 0 0;
+    }
+
+    .revenue-month {
+        color: #70877e;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .dashboard-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        min-width: 720px;
+    }
+
+        .dashboard-table th,
+        .dashboard-table td {
+            padding: 14px 10px;
+            border-bottom: 1px solid #edf1ee;
+            text-align: left;
+        }
+
+        .dashboard-table th {
+            color: #70877e;
+            background: #f7faf8;
+            white-space: nowrap;
+        }
+
+        .dashboard-table td {
+            color: #42564c;
+        }
+
+    .order-code {
+        color: #315e50;
+        font-weight: 700;
+    }
+
+    .status-label {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #eaf1ec;
+        color: #315e50;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .payment-label {
+        background: #fff4df;
+        color: #9a7131;
+    }
+
+    .empty-data {
+        text-align: center !important;
+        color: #91a39b !important;
+        padding: 30px !important;
+    }
+
+    .view-all {
+        color: #39766b;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .view-all:hover {
+            color: #183b36;
+        }
+
+    @@media(max-width: 1050px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media(max-width: 550px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .panel {
+            padding: 15px;
+        }
+    }
+</style>
+
+<!-- 4 THE THONG KE -->
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">Tổng doanh thu</span>
+            <div class="stat-icon">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+        </div>
+
+        <div class="stat-number">
+            @Model.TotalRevenue.ToString("N0") đ
+        </div>
+
+        <div class="stat-note">Từ các đơn hàng đã thanh toán</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">Tổng đơn hàng</span>
+            <div class="stat-icon">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+        </div>
+
+        <div class="stat-number">
+            @Model.TotalOrders.ToString("N0")
+        </div>
+
+        <div class="stat-note">Tất cả đơn hàng trong hệ thống</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">Lượt mua</span>
+            <div class="stat-icon">
+                <i class="fa-solid fa-bag-shopping"></i>
+            </div>
+        </div>
+
+        <div class="stat-number">
+            @Model.TotalPurchases.ToString("N0")
+        </div>
+
+        <div class="stat-note">Số lượng sách trong đơn đã thanh toán</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">Lượt đánh giá</span>
+            <div class="stat-icon">
+                <i class="fa-solid fa-star"></i>
+            </div>
+        </div>
+
+        <div class="stat-number">
+            @Model.TotalReviews.ToString("N0")
+        </div>
+
+        <div class="stat-note">
+            @Model.ApprovedReviews đánh giá đã được duyệt
+        </div>
+    </div>
+
+</div>
+
+<!-- BIEU DO DOANH THU -->
+<div class="panel" id="revenue">
+
+    <div class="panel-heading">
+        <h3>
+            <i class="fa-solid fa-chart-column"></i>
+            Doanh thu theo tháng
+        </h3>
+    </div>
+
+    @if (monthlyRevenue != null && monthlyRevenue.Any())
+    {
+        <div class="revenue-chart">
+
+            @foreach (var item in monthlyRevenue)
+            {
+                var barHeight = maxRevenue > 0
+                    ? (double)(item.Revenue / maxRevenue * 100)
+                    : 0;
+
+                <div class="revenue-column">
+
+                    <div class="revenue-value">
+                        @item.Revenue.ToString("N0") đ
+                    </div>
+
+                    <div class="revenue-bar-wrap">
+                        <div class="revenue-bar"
+                             style="height:@(barHeight.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%;">
+                        </div>
+                    </div>
+
+                    <div class="revenue-month">
+                        Tháng @item.Month/@item.Year
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-data">
+            Chưa có dữ liệu doanh thu để hiển thị.
+        </div>
+    }
+
+</div>
+
+<!-- DON HANG GAN DAY -->
+<div class="panel" id="purchases">
+
+    <div class="panel-heading">
+        <h3>
+            <i class="fa-solid fa-receipt"></i>
+            Đơn hàng gần đây
+        </h3>
+
+        <a href="@Url.Action("Index", "AdminOrders")"
+           class="view-all">
+            Xem tất cả →
+        </a>
+    </div>
+
+    <div style="overflow-x:auto;">
+        <table class="dashboard-table">
+
+            <thead>
+                <tr>
+                    <th>Mã đơn hàng</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái đơn</th>
+                    <th>Thanh toán</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (recentOrders != null && recentOrders.Any())
+                {
+                    foreach (var order in recentOrders)
+                    {
+                        <tr>
+                            <td class="order-code">
+                                @order.OrderCode
+                            </td>
+
+                            <td>
+                                @order.CustomerName
+                            </td>
+
+                            <td>
+                                @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+
+                            <td>
+                                <strong>
+                                    @order.TotalAmount.ToString("N0") đ
+                                </strong>
+                            </td>
+
+                            <td>
+                                <span class="status-label">
+                                    @order.OrderStatus
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="status-label payment-label">
+                                    @order.PaymentStatus
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="empty-data">
+                            Chưa có đơn hàng nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+
+</div>

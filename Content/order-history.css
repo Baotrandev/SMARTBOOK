@@ -1,0 +1,222 @@
+﻿
+.order-history-page {
+    max-width: 1150px;
+    margin: 0 auto;
+    padding: 45px 20px 75px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    color: #263b32;
+}
+
+.order-history-heading {
+    margin-bottom: 35px;
+}
+
+.order-eyebrow {
+    color: #b58a42;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.order-history-heading h1 {
+    color: #183b36;
+    font-size: 32px;
+    font-weight: 800;
+    margin: 12px 0;
+}
+
+.order-history-heading p {
+    color: #7b8981;
+    line-height: 1.7;
+}
+
+.order-history-content {
+    background: #fff;
+    border: 1px solid #e8eee9;
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.order-history-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+    .order-history-top h2 {
+        font-size: 21px;
+        color: #183b36;
+        margin: 0;
+    }
+
+    .order-history-top span {
+        color: #7b8981;
+        font-size: 13px;
+    }
+
+.order-card {
+    border: 1px solid #e6ece7;
+    border-radius: 13px;
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+
+    .order-card:last-child {
+        margin-bottom: 0;
+    }
+
+.order-card-header {
+    background: #f5f8f5;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+    .order-card-header > div {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+.order-label {
+    font-size: 11px;
+    color: #89958e;
+    letter-spacing: 1px;
+}
+
+.order-card-header strong {
+    color: #183b36;
+    font-size: 15px;
+}
+
+.order-status {
+    display: inline-block;
+    background: #e7f2eb;
+    color: #286448;
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.order-card-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    padding: 20px;
+}
+
+    .order-card-info div {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .order-card-info span,
+    .order-card-footer span {
+        color: #87928b;
+        font-size: 12px;
+    }
+
+    .order-card-info strong {
+        color: #35463d;
+        font-size: 13px;
+    }
+
+.order-note {
+    margin: 0 20px 15px;
+    padding: 12px;
+    background: #faf9f5;
+    border-radius: 8px;
+    color: #69756d;
+    font-size: 13px;
+}
+
+    .order-note span {
+        font-weight: 700;
+    }
+
+.order-card-footer {
+    border-top: 1px solid #edf0ed;
+    padding: 17px 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+    .order-card-footer > div {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+.order-total {
+    color: #c47c27;
+    font-size: 20px;
+}
+
+.order-empty {
+    text-align: center;
+    padding: 55px 20px;
+}
+
+.order-empty-icon {
+    font-size: 45px;
+    color: #9aafa2;
+    margin-bottom: 15px;
+}
+
+.order-empty h3 {
+    color: #183b36;
+    font-size: 21px;
+}
+
+.order-empty p {
+    color: #87928b;
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 10px auto 22px;
+}
+
+.order-empty a {
+    display: inline-block;
+    background: #24594c;
+    color: #fff;
+    text-decoration: none;
+    padding: 13px 24px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+    .order-empty a:hover {
+        background: #183b36;
+    }
+
+@media (max-width: 650px) {
+    .order-history-heading h1 {
+        font-size: 26px;
+    }
+
+    .order-history-content {
+        padding: 15px;
+    }
+
+    .order-card-info {
+        grid-template-columns: 1fr;
+    }
+
+    .order-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .order-card-footer > div {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+    }
+}

@@ -1,0 +1,43 @@
+﻿
+@model SmartBook.Models.book
+
+@{
+    ViewBag.Title = "Xóa sách";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>XÁC NHẬN XÓA SÁCH</h2>
+
+    <div class="alert alert-warning">
+        Bạn có chắc chắn muốn xóa cuốn sách này không?
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-3">Mã sách</dt>
+        <dd class="col-sm-9">@Model.book_id</dd>
+
+        <dt class="col-sm-3">Tên sách</dt>
+        <dd class="col-sm-9">@Model.book_title</dd>
+
+        <dt class="col-sm-3">ISBN</dt>
+        <dd class="col-sm-9">@Model.ISBN</dd>
+
+        <dt class="col-sm-3">Giá bán</dt>
+        <dd class="col-sm-9">@Model.sale_price.ToString("N0") đ</dd>
+    </dl>
+
+    @using (Html.BeginForm("Delete", "AdminBooks",
+                           new { id = Model.book_id },
+                           FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <button type="submit" class="btn btn-danger">
+            Xác nhận xóa
+        </button>
+
+        @Html.ActionLink("Hủy", "Index", null,
+                 new { @class = "btn btn-secondary" })
+    }
+</div>

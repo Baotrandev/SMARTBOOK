@@ -1,0 +1,106 @@
+﻿
+@model IEnumerable<SmartBook.Models.OrderHistoryViewModel>
+
+@using System
+@using System.Linq
+
+@{
+    ViewBag.Title = "Đơn hàng của tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="@Url.Content("~/Content/order-history.css")" rel="stylesheet" />
+
+<div class="order-history-page">
+
+    <div class="order-history-heading">
+        <span class="order-eyebrow">SMARTBOOK</span>
+        <h1>Đơn hàng của tôi</h1>
+        <p>Theo dõi những đơn hàng bạn đã đặt tại SmartBook.</p>
+    </div>
+
+    <div class="order-history-content">
+
+        <div class="order-history-top">
+            <h2>Lịch sử mua hàng</h2>
+            <span>@(Model == null ? 0 : Model.Count()) đơn hàng</span>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            foreach (var order in Model)
+            {
+                <div class="order-card">
+
+                    <div class="order-card-header">
+                        <div>
+                            <span class="order-label">MÃ ĐƠN HÀNG</span>
+                            <strong>@order.OrderCode</strong>
+                        </div>
+
+                        <span class="order-status">
+                            @order.OrderStatus
+                        </span>
+                    </div>
+
+                    <div class="order-card-info">
+                        <div>
+                            <span>Ngày đặt hàng</span>
+                            <strong>
+                                @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Số lượng sách</span>
+                            <strong>@order.TotalItems sản phẩm</strong>
+                        </div>
+
+                        <div>
+                            <span>Thanh toán</span>
+                            <strong>@order.PaymentStatus</strong>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(order.CustomerNote))
+                    {
+                        <div class="order-note">
+                            <strong>Ghi chú:</strong>
+                            @order.CustomerNote
+                        </div>
+                    }
+
+                    <div class="order-card-footer">
+                        <div>
+                            <span>Tổng thanh toán</span>
+                            <strong class="order-total">
+                                @order.TotalAmount.ToString("N0") đ
+                            </strong>
+                        </div>
+                    </div>
+
+                </div>
+            }
+        }
+        else
+        {
+            <div class="order-empty">
+                <div class="order-empty-icon">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+
+                <h3>Bạn chưa có đơn hàng nào</h3>
+
+                <p>
+                    Những cuốn sách bạn đặt mua sẽ được hiển thị
+                    tại đây để bạn dễ dàng theo dõi.
+                </p>
+
+                <a href="@Url.Action("Index", "Products")">
+                    KHÁM PHÁ SÁCH
+                </a>
+            </div>
+        }
+
+    </div>
+</div>

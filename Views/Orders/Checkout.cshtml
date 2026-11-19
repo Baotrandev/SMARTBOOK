@@ -1,0 +1,1346 @@
+﻿
+@model SmartBook.Models.CheckoutViewModel
+
+@using System
+@using System.Linq
+@using System.Collections.Generic
+@using System.Globalization
+@using SmartBook.Models
+
+@{
+    ViewBag.Title = "Đặt hàng & Thanh toán";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var cart = Session["SmartBookCart"] as List<CartItemViewModel>
+               ?? new List<CartItemViewModel>();
+
+    decimal subtotal = cart.Sum(x => x.LineTotal);
+
+    string selectedShipping = Model == null
+        ? "SFX Express"
+        : (Model.ShippingPartner ?? "SFX Express");
+
+    string selectedPayment = Model == null
+        ? "Thanh toan khi nhan hang"
+        : (Model.PaymentMethod ?? "Thanh toan khi nhan hang");
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet" />
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+    .checkout-page {
+        max-width: 1250px;
+        margin: 30px auto 60px;
+        padding: 0 22px;
+        font-family: 'Be Vietnam Pro', sans-serif;
+        color: #24463e;
+    }
+
+    .checkout-heading {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+        .checkout-heading h1 {
+            font-size: 27px;
+            font-weight: 800;
+            color: #183b36;
+            margin-bottom: 8px;
+        }
+
+        .checkout-heading p {
+            color: #82938c;
+            font-size: 13px;
+        }
+
+    .checkout-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(320px, .85fr);
+        gap: 24px;
+        align-items: start;
+    }
+
+    .checkout-left,
+    .checkout-right {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        min-width: 0;
+    }
+
+    .checkout-card {
+        background: #fff;
+        border: 1px solid #dfebe5;
+        border-radius: 17px;
+        padding: 23px;
+        box-shadow: 0 5px 20px rgba(24, 59, 54, .035);
+        min-width: 0;
+    }
+
+    .checkout-card-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-bottom: 15px;
+        margin-bottom: 17px;
+        border-bottom: 1px solid #edf2ef;
+    }
+
+        .checkout-card-title h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 800;
+            color: #183b36;
+        }
+
+        .checkout-card-title i {
+            color: #39766b;
+            margin-right: 7px;
+        }
+
+    .order-code {
+        font-size: 10px;
+        color: #82938c;
+        text-align: right;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 14px;
+        min-width: 0;
+    }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            color: #294b42;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #dce8e1;
+            border-radius: 9px;
+            padding: 11px 13px;
+            outline: none;
+            background: #fff;
+            color: #294b42;
+            font-family: inherit;
+            font-size: 12px;
+            transition: .2s;
+        }
+
+        .form-group input {
+            height: 43px;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+            .form-group input:focus,
+            .form-group textarea:focus {
+                border-color: #39766b;
+                box-shadow: 0 0 0 3px rgba(57, 118, 107, .09);
+            }
+
+    .field-validation-error {
+        display: block;
+        color: #c64e42;
+        font-size: 11px;
+        margin-top: 5px;
+    }
+
+    .validation-summary-errors {
+        color: #b54740;
+        background: #fff1ef;
+        border: 1px solid #f5d5d1;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        font-size: 12px;
+    }
+
+        .validation-summary-errors ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+    .shipping-promo {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #28734e;
+        background: #e8f5ed;
+        padding: 6px 9px;
+        border-radius: 20px;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .shipping-list,
+    .payment-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .shipping-option,
+    .payment-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        padding: 14px 13px;
+        border: 1px solid #e3ebe6;
+        border-radius: 11px;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .shipping-option:hover,
+        .shipping-option.selected,
+        .payment-option:hover,
+        .payment-option.selected {
+            border-color: #39766b;
+            background: #f5faf7;
+        }
+
+        .shipping-option input,
+        .payment-option input {
+            margin-top: 3px;
+            accent-color: #39766b;
+            flex-shrink: 0;
+        }
+
+    .shipping-info,
+    .payment-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .shipping-name,
+    .payment-name {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+        color: #294b42;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .shipping-desc,
+    .payment-desc {
+        margin-top: 5px;
+        color: #82938c;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .shipping-price {
+        white-space: nowrap;
+        font-size: 12px;
+        font-weight: 800;
+        color: #183b36;
+    }
+
+    .fast-tag {
+        color: #a66a12;
+        background: #fff2d9;
+        padding: 4px 7px;
+        border-radius: 20px;
+        font-size: 9px;
+    }
+
+    .voucher-input-row {
+        display: flex;
+        gap: 9px;
+    }
+
+        .voucher-input-row input {
+            flex: 1;
+            min-width: 0;
+            height: 42px;
+            box-sizing: border-box;
+            border: 1px solid #dce8e1;
+            border-radius: 9px;
+            padding: 0 12px;
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+            text-transform: uppercase;
+        }
+
+            .voucher-input-row input:focus {
+                border-color: #39766b;
+            }
+
+    .btn-apply-voucher {
+        border: none;
+        border-radius: 9px;
+        padding: 0 18px;
+        background: #183b36;
+        color: #fff;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .btn-apply-voucher:hover {
+            background: #39766b;
+        }
+
+    .voucher-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 11px;
+    }
+
+    .voucher-chip {
+        border: 1px dashed #a8c5b7;
+        border-radius: 7px;
+        padding: 7px 9px;
+        color: #39766b;
+        background: #f5faf7;
+        font-family: inherit;
+        font-size: 9px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .voucher-chip:hover,
+        .voucher-chip.active {
+            color: #fff;
+            background: #39766b;
+            border-style: solid;
+        }
+
+    .voucher-message {
+        margin-top: 10px;
+        font-size: 11px;
+        min-height: 16px;
+    }
+
+        .voucher-message.success {
+            color: #28734e;
+        }
+
+        .voucher-message.error {
+            color: #c64e42;
+        }
+
+    .product-line {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 10px 0;
+        border-bottom: 1px solid #edf2ef;
+    }
+
+        .product-line:last-child {
+            border-bottom: none;
+        }
+
+        .product-line img {
+            width: 48px;
+            height: 62px;
+            object-fit: cover;
+            border: 1px solid #e5ece8;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+    .product-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+        .product-info h4 {
+            color: #294b42;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.5;
+            margin: 0 0 4px;
+        }
+
+        .product-info p {
+            color: #91a39b;
+            font-size: 10px;
+            margin: 0;
+        }
+
+    .product-price {
+        white-space: nowrap;
+        color: #183b36;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .payment-details {
+        margin-top: 17px;
+    }
+
+        .payment-details h4 {
+            color: #183b36;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 13px;
+        }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 10px 0;
+        color: #82938c;
+        font-size: 11px;
+    }
+
+        .summary-row strong {
+            color: #294b42;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .summary-row.discount span,
+        .summary-row.discount strong {
+            color: #c45d4a;
+            font-weight: 700;
+        }
+
+    .summary-divider {
+        border: 0;
+        border-top: 1px solid #e8efeb;
+        margin: 15px 0;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin: 17px 0;
+    }
+
+        .total-row span {
+            color: #183b36;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+    .total-price {
+        color: #c45d4a;
+        font-size: 23px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .saving-text {
+        text-align: right;
+        color: #82938c;
+        font-size: 10px;
+        margin-top: -10px;
+        margin-bottom: 15px;
+    }
+
+    .btn-place-order {
+        width: 100%;
+        height: 48px;
+        border: none;
+        border-radius: 10px;
+        background: #39766b;
+        color: #fff;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .btn-place-order:hover {
+            background: #183b36;
+            transform: translateY(-1px);
+        }
+
+        .btn-place-order:disabled {
+            background: #aabbb3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    .back-cart {
+        display: block;
+        margin-top: 14px;
+        text-align: center;
+        color: #39766b;
+        font-size: 11px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .back-cart:hover {
+            color: #183b36;
+        }
+
+    .empty-cart {
+        padding: 35px 15px;
+        text-align: center;
+        color: #82938c;
+    }
+
+        .empty-cart i {
+            display: block;
+            font-size: 35px;
+            color: #a8c5b7;
+            margin-bottom: 12px;
+        }
+
+        .empty-cart a {
+            display: block;
+            margin-top: 10px;
+            color: #39766b;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+    @@media (max-width: 900px) {
+        .checkout-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .checkout-right {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: start;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .checkout-page {
+            padding: 0 12px;
+            margin-top: 20px;
+        }
+
+        .checkout-heading h1 {
+            font-size: 22px;
+        }
+
+        .checkout-card {
+            padding: 17px;
+            border-radius: 13px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .form-group.full {
+            grid-column: auto;
+        }
+
+        .checkout-right {
+            display: flex;
+        }
+
+        .checkout-card-title {
+            align-items: flex-start;
+        }
+
+        .total-price {
+            font-size: 20px;
+        }
+    }
+</style>
+
+<div class="checkout-page">
+
+    <div class="checkout-heading">
+        <h1>Đặt hàng & Thanh toán</h1>
+        <p>Hoàn tất thông tin để nhận những cuốn sách yêu thích.</p>
+    </div>
+
+    @using (Html.BeginForm("Checkout", "Orders", FormMethod.Post,
+        new { id = "checkoutForm" }))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.ValidationSummary(false, "", new
+        {
+            @class = "validation-summary-errors"
+        })
+
+        @Html.HiddenFor(m => m.VoucherCode, new
+        {
+            id = "VoucherCode"
+        })
+
+        <div class="checkout-grid">
+
+            <!-- CỘT TRÁI -->
+            <div class="checkout-left">
+
+                <!-- ĐỊA CHỈ NHẬN HÀNG -->
+                <section class="checkout-card">
+
+                    <div class="checkout-card-title">
+                        <h3>
+                            <i class="fa-solid fa-location-dot"></i>
+                            Địa chỉ nhận hàng
+                        </h3>
+
+                        <span class="order-code">
+                            Điền đầy đủ thông tin nhận hàng
+                        </span>
+                    </div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Họ và tên người nhận *</label>
+
+                            @Html.TextBoxFor(m => m.FullName, new
+                            {
+                                @class = "form-control",
+                                placeholder = "Nhập họ và tên",
+                                required = "required"
+                            })
+
+                            @Html.ValidationMessageFor(m => m.FullName)
+                        </div>
+
+                        <div class="form-group">
+                            <label>Số điện thoại *</label>
+
+                            @Html.TextBoxFor(m => m.Phone, new
+                            {
+                                @class = "form-control",
+                                placeholder = "Nhập số điện thoại",
+                                type = "tel",
+                                required = "required"
+                            })
+
+                            @Html.ValidationMessageFor(m => m.Phone)
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Địa chỉ nhận hàng *</label>
+
+                            @Html.TextAreaFor(m => m.Address, new
+                            {
+                                @class = "form-control",
+                                placeholder = "Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố",
+                                required = "required",
+                                rows = "2"
+                            })
+
+                            @Html.ValidationMessageFor(m => m.Address)
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Ghi chú cho đơn hàng</label>
+
+                            @Html.TextAreaFor(m => m.Note, new
+                            {
+                                @class = "form-control",
+                                placeholder = "Lưu ý cho người bán hoặc shipper...",
+                                rows = "2"
+                            })
+
+                            @Html.ValidationMessageFor(m => m.Note)
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- PHƯƠNG THỨC VẬN CHUYỂN -->
+                <section class="checkout-card">
+
+                    <div class="checkout-card-title">
+                        <h3>
+                            <i class="fa-solid fa-truck-fast"></i>
+                            Phương thức vận chuyển
+                        </h3>
+
+                        <span class="shipping-promo">
+                            <i class="fa-solid fa-tag"></i>
+                            Chọn đơn vị vận chuyển
+                        </span>
+                    </div>
+
+                    <div class="shipping-list">
+
+                        <label class="shipping-option @(selectedShipping == "SFX Express" ? "selected" : "")">
+
+                            <input type="radio"
+                                   name="ShippingPartner"
+                                   value="SFX Express"
+                                   data-fee="30000"
+                                   @(selectedShipping == "SFX Express" ? "checked" : "") />
+
+                            <div class="shipping-info">
+                                <div class="shipping-name">
+                                    SFX Express
+                                </div>
+
+                                <div class="shipping-desc">
+                                    Giao hàng tiêu chuẩn tại TP.HCM.
+                                </div>
+                            </div>
+
+                            <span class="shipping-price">30.000đ</span>
+
+                        </label>
+
+                        <label class="shipping-option @(selectedShipping == "JT Express" ? "selected" : "")">
+
+                            <input type="radio"
+                                   name="ShippingPartner"
+                                   value="JT Express"
+                                   data-fee="30000"
+                                   @(selectedShipping == "JT Express" ? "checked" : "") />
+
+                            <div class="shipping-info">
+                                <div class="shipping-name">
+                                    J&T Express
+                                </div>
+
+                                <div class="shipping-desc">
+                                    Giao hàng tận nơi, tiêu chuẩn.
+                                </div>
+                            </div>
+
+                            <span class="shipping-price">30.000đ</span>
+
+                        </label>
+
+                        <label class="shipping-option @(selectedShipping == "HoaTocGrab" ? "selected" : "")">
+
+                            <input type="radio"
+                                   name="ShippingPartner"
+                                   value="HoaTocGrab"
+                                   data-fee="25000"
+                                   @(selectedShipping == "HoaTocGrab" ? "checked" : "") />
+
+                            <div class="shipping-info">
+                                <div class="shipping-name">
+                                    GrabExpress
+                                    <span class="fast-tag">Giao nhanh</span>
+                                </div>
+
+                                <div class="shipping-desc">
+                                    Giao hàng hỏa tốc trong khu vực hỗ trợ.
+                                </div>
+                            </div>
+
+                            <span class="shipping-price">25.000đ</span>
+
+                        </label>
+
+                    </div>
+
+                    @Html.ValidationMessageFor(m => m.ShippingPartner)
+
+                </section>
+
+                <!-- PHƯƠNG THỨC THANH TOÁN -->
+                <section class="checkout-card">
+
+                    <div class="checkout-card-title">
+                        <h3>
+                            <i class="fa-solid fa-credit-card"></i>
+                            Phương thức thanh toán
+                        </h3>
+                    </div>
+
+                    <div class="payment-list">
+
+                        <label class="payment-option @(selectedPayment == "Thanh toan khi nhan hang" ? "selected" : "")">
+
+                            <input type="radio"
+                                   name="PaymentMethod"
+                                   value="Thanh toan khi nhan hang"
+                                   @(selectedPayment == "Thanh toan khi nhan hang" ? "checked" : "") />
+
+                            <div class="payment-info">
+                                <div class="payment-name">
+                                    <i class="fa-solid fa-money-bill-wave"></i>
+                                    Thanh toán khi nhận hàng (COD)
+                                </div>
+
+                                <div class="payment-desc">
+                                    Thanh toán trực tiếp cho nhân viên giao hàng khi nhận sách.
+                                </div>
+                            </div>
+
+                        </label>
+
+                        <label class="payment-option @(selectedPayment == "Chuyen khoan" ? "selected" : "")">
+
+                            <input type="radio"
+                                   name="PaymentMethod"
+                                   value="Chuyen khoan"
+                                   @(selectedPayment == "Chuyen khoan" ? "checked" : "") />
+
+                            <div class="payment-info">
+                                <div class="payment-name">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                    Chuyển khoản ngân hàng
+                                </div>
+
+                                <div class="payment-desc">
+                                    Thanh toán bằng hình thức chuyển khoản.
+                                </div>
+                            </div>
+
+                        </label>
+
+                    </div>
+
+                    @Html.ValidationMessageFor(m => m.PaymentMethod)
+
+                </section>
+
+                <!-- VOUCHER -->
+                <section class="checkout-card">
+
+                    <div class="checkout-card-title">
+                        <h3>
+                            <i class="fa-solid fa-ticket"></i>
+                            SmartBook Voucher
+                        </h3>
+
+                        <span class="order-code">
+                            Chọn nhanh hoặc nhập mã
+                        </span>
+                    </div>
+
+                    <div class="voucher-input-row">
+
+                        <input type="text"
+                               id="voucherInput"
+                               value="FIRST20"
+                               placeholder="Nhập mã giảm giá..." />
+
+                        <button type="button"
+                                class="btn-apply-voucher"
+                                id="applyVoucher">
+                            Áp dụng
+                        </button>
+
+                    </div>
+
+                    <div class="voucher-chips">
+
+                        <button type="button"
+                                class="voucher-chip active"
+                                data-code="FIRST20">
+                            <i class="fa-solid fa-tag"></i>
+                            FIRST20 - Giảm 20.000đ
+                        </button>
+
+                        <button type="button"
+                                class="voucher-chip"
+                                data-code="GRAB27">
+                            <i class="fa-solid fa-truck"></i>
+                            GRAB27 - Giảm 7.000đ
+                        </button>
+
+                        <button type="button"
+                                class="voucher-chip"
+                                data-code="">
+                            Bỏ chọn Voucher
+                        </button>
+
+                    </div>
+
+                    <div id="voucherMessage"
+                         class="voucher-message success">
+                        Đã chọn voucher FIRST20.
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- CỘT PHẢI -->
+            <div class="checkout-right">
+
+                <section class="checkout-card">
+
+                    <div class="checkout-card-title">
+                        <h3>
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            Sản phẩm đặt mua
+                        </h3>
+                    </div>
+
+                    @if (cart.Any())
+                    {
+                        foreach (var item in cart)
+                        {
+                            <div class="product-line">
+
+                                <img src="@Url.Content(
+                                    string.IsNullOrWhiteSpace(item.ImageUrl)
+                                    ? "~/Images/no-image.png"
+                                    : item.ImageUrl
+                                )"
+                                     alt="@item.BookTitle" />
+
+                                <div class="product-info">
+                                    <h4>@item.BookTitle</h4>
+                                    <p>Số lượng: @item.Quantity</p>
+                                </div>
+
+                                <div class="product-price">
+                                    @item.LineTotal.ToString("N0")đ
+                                </div>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-cart">
+                            <i class="fa-solid fa-basket-shopping"></i>
+
+                            Giỏ hàng hiện đang trống.
+
+                            <a href="@Url.Action("Index", "Products")">
+                                Tiếp tục mua sách
+                            </a>
+                        </div>
+                    }
+
+                    <div class="payment-details">
+
+                        <h4>
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                            Chi tiết thanh toán
+                        </h4>
+
+                        <div class="summary-row">
+                            <span>Tổng tiền hàng</span>
+
+                            <strong id="subtotal">
+                                @subtotal.ToString("N0")đ
+                            </strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Tổng phí vận chuyển</span>
+
+                            <strong id="shippingAmount">30.000đ</strong>
+                        </div>
+
+                        <div class="summary-row discount">
+                            <span>Giảm giá phí vận chuyển</span>
+
+                            <strong id="shippingDiscount">-15.000đ</strong>
+                        </div>
+
+                        <div class="summary-row discount">
+                            <span>Voucher giảm giá</span>
+
+                            <strong id="voucherDiscount">-20.000đ</strong>
+                        </div>
+
+                        <hr class="summary-divider" />
+
+                        <div class="total-row">
+                            <span>Tổng thanh toán</span>
+
+                            <strong class="total-price" id="grandTotal">
+                                @subtotal.ToString("N0")đ
+                            </strong>
+                        </div>
+
+                        <div class="saving-text" id="savingText">
+                            Tiết kiệm: 35.000đ
+                        </div>
+
+                        <button type="submit"
+                                class="btn-place-order"
+                                @(cart.Any() ? "" : "disabled")>
+
+                            ĐẶT HÀNG NGAY
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </button>
+
+                        <a href="@Url.Action("Index", "Cart")"
+                           class="back-cart">
+
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Quay lại giỏ hàng
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+    }
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    var subtotal = @subtotal.ToString(CultureInfo.InvariantCulture);
+
+    var voucherInput = document.getElementById("voucherInput");
+    var voucherCode = document.getElementById("VoucherCode");
+
+    var shippingAmount = document.getElementById("shippingAmount");
+    var shippingDiscount = document.getElementById("shippingDiscount");
+    var voucherDiscount = document.getElementById("voucherDiscount");
+    var grandTotal = document.getElementById("grandTotal");
+    var savingText = document.getElementById("savingText");
+    var voucherMessage = document.getElementById("voucherMessage");
+
+    var currentVoucher = "";
+    var currentShippingFee = 30000;
+    var currentShippingCode = "SFX Express";
+
+    function money(value) {
+        return Math.round(value).toLocaleString("vi-VN") + "đ";
+    }
+
+    function getVoucherDiscount() {
+
+        if (currentVoucher === "FIRST20") {
+            return 20000;
+        }
+
+        if (currentVoucher === "GRAB27") {
+            return 7000;
+        }
+
+        return 0;
+    }
+
+    function getShippingDiscount() {
+
+        if (currentShippingCode === "SFX Express" ||
+            currentShippingCode === "JT Express") {
+            return 15000;
+        }
+
+        return 0;
+    }
+
+    function updateTotal() {
+
+        var shipDiscount = getShippingDiscount();
+        var voucher = getVoucherDiscount();
+
+        var total = subtotal
+            + currentShippingFee
+            - shipDiscount
+            - voucher;
+
+        total = Math.max(0, total);
+
+        if (shippingAmount) {
+            shippingAmount.textContent = money(currentShippingFee);
+        }
+
+        if (shippingDiscount) {
+            shippingDiscount.textContent =
+                shipDiscount > 0 ? "-" + money(shipDiscount) : money(0);
+        }
+
+        if (voucherDiscount) {
+            voucherDiscount.textContent =
+                voucher > 0 ? "-" + money(voucher) : money(0);
+        }
+
+        if (grandTotal) {
+            grandTotal.textContent = money(total);
+        }
+
+        if (savingText) {
+            savingText.textContent =
+                "Tiết kiệm: " + money(shipDiscount + voucher);
+        }
+
+        if (voucherCode) {
+            voucherCode.value = currentVoucher;
+        }
+    }
+
+    // ÁP DỤNG VOUCHER
+    function applyVoucher(code) {
+
+        code = (code || "").trim().toUpperCase();
+
+        if (code === "" || code === "NONE") {
+
+            currentVoucher = "";
+
+            voucherInput.value = "";
+
+            voucherMessage.textContent = "Đã bỏ chọn voucher.";
+            voucherMessage.className = "voucher-message";
+
+        }
+        else if (code === "FIRST20") {
+
+            currentVoucher = "FIRST20";
+
+            voucherInput.value = code;
+
+            voucherMessage.textContent =
+                "Đã chọn FIRST20 - giảm 20.000đ.";
+
+            voucherMessage.className =
+                "voucher-message success";
+
+        }
+        else if (code === "GRAB27") {
+
+            if (currentShippingCode !== "HoaTocGrab") {
+
+                currentVoucher = "";
+
+                voucherInput.value = "";
+
+                voucherMessage.textContent =
+                    "GRAB27 chỉ áp dụng khi chọn GrabExpress.";
+
+                voucherMessage.className =
+                    "voucher-message error";
+
+                updateTotal();
+                updateVoucherChips();
+
+                return;
+            }
+
+            currentVoucher = "GRAB27";
+
+            voucherInput.value = code;
+
+            voucherMessage.textContent =
+                "Đã chọn GRAB27 - giảm 7.000đ.";
+
+            voucherMessage.className =
+                "voucher-message success";
+
+        }
+        else {
+
+            voucherMessage.textContent =
+                "Mã voucher không hợp lệ.";
+
+            voucherMessage.className =
+                "voucher-message error";
+
+            return;
+        }
+
+        updateVoucherChips();
+        updateTotal();
+    }
+
+    function updateVoucherChips() {
+
+        document.querySelectorAll(".voucher-chip").forEach(function (chip) {
+
+            chip.classList.toggle(
+                "active",
+                chip.dataset.code === currentVoucher
+            );
+
+        });
+    }
+
+    // NÚT ÁP DỤNG VOUCHER
+    var applyButton = document.getElementById("applyVoucher");
+
+    if (applyButton) {
+
+        applyButton.addEventListener("click", function () {
+            applyVoucher(voucherInput.value);
+        });
+
+    }
+
+    // NHẤN ENTER ĐỂ ÁP DỤNG
+    if (voucherInput) {
+
+        voucherInput.addEventListener("keydown", function (event) {
+
+            if (event.key === "Enter") {
+                event.preventDefault();
+                applyVoucher(voucherInput.value);
+            }
+
+        });
+
+    }
+
+    // CHỌN VOUCHER CÓ SẴN
+    document.querySelectorAll(".voucher-chip").forEach(function (chip) {
+
+        chip.addEventListener("click", function () {
+            applyVoucher(chip.dataset.code);
+        });
+
+    });
+
+    // CHỌN PHƯƠNG THỨC VẬN CHUYỂN
+    document.querySelectorAll(
+        'input[name="ShippingPartner"]'
+    ).forEach(function (radio) {
+
+        radio.addEventListener("change", function () {
+
+            currentShippingCode = this.value;
+
+            currentShippingFee =
+                parseInt(this.dataset.fee, 10) || 0;
+
+            document.querySelectorAll(".shipping-option")
+                .forEach(function (option) {
+                    option.classList.remove("selected");
+                });
+
+            this.closest(".shipping-option")
+                .classList.add("selected");
+
+            // GRAB27 chỉ dùng với GrabExpress
+            if (currentShippingCode !== "HoaTocGrab" &&
+                currentVoucher === "GRAB27") {
+
+                currentVoucher = "";
+
+                voucherInput.value = "";
+
+                voucherMessage.textContent =
+                    "GRAB27 đã được bỏ vì bạn không chọn GrabExpress.";
+
+                voucherMessage.className =
+                    "voucher-message error";
+
+                updateVoucherChips();
+            }
+
+            updateTotal();
+
+        });
+
+    });
+
+    // CHỌN PHƯƠNG THỨC THANH TOÁN
+    document.querySelectorAll(
+        'input[name="PaymentMethod"]'
+    ).forEach(function (radio) {
+
+        radio.addEventListener("change", function () {
+
+            document.querySelectorAll(".payment-option")
+                .forEach(function (option) {
+                    option.classList.remove("selected");
+                });
+
+            this.closest(".payment-option")
+                .classList.add("selected");
+
+        });
+
+    });
+
+    // KIỂM TRA TRƯỚC KHI GỬI FORM
+    var checkoutForm = document.getElementById("checkoutForm");
+
+    if (checkoutForm) {
+
+        checkoutForm.addEventListener("submit", function (event) {
+
+            var shipping = document.querySelector(
+                'input[name="ShippingPartner"]:checked'
+            );
+
+            var payment = document.querySelector(
+                'input[name="PaymentMethod"]:checked'
+            );
+
+            if (!shipping) {
+                event.preventDefault();
+                alert("Vui lòng chọn phương thức vận chuyển.");
+                return;
+            }
+
+            if (!payment) {
+                event.preventDefault();
+                alert("Vui lòng chọn phương thức thanh toán.");
+                return;
+            }
+
+            if (voucherCode && voucherCode.value === "GRAB27" &&
+                shipping.value !== "HoaTocGrab") {
+
+                event.preventDefault();
+                alert("Voucher GRAB27 chỉ áp dụng cho GrabExpress.");
+                return;
+            }
+
+        });
+
+    }
+
+    // KHỞI TẠO
+    var selectedShippingRadio = document.querySelector(
+        'input[name="ShippingPartner"]:checked'
+    );
+
+    if (selectedShippingRadio) {
+
+        currentShippingCode = selectedShippingRadio.value;
+
+        currentShippingFee =
+            parseInt(selectedShippingRadio.dataset.fee, 10) || 0;
+
+    }
+
+    document.querySelectorAll(".payment-option").forEach(function (option) {
+
+        var radio = option.querySelector('input[name="PaymentMethod"]');
+
+        option.classList.toggle(
+            "selected",
+            radio && radio.checked
+        );
+
+    });
+
+    applyVoucher("FIRST20");
+
+});
+</script>

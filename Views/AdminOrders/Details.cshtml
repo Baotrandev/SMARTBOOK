@@ -1,0 +1,221 @@
+﻿
+@model SmartBook.Models.AdminOrderViewModel
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-order-detail">
+
+    <div class="detail-heading">
+        <div>
+            <h2><i class="fa-solid fa-file-invoice"></i> Chi tiết đơn hàng</h2>
+            <p>Thông tin đơn hàng được lưu trong hệ thống SmartBook.</p>
+        </div>
+
+        <a href="@Url.Action("Index", "AdminOrders")" class="btn-back">
+            <i class="fa-solid fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="detail-card">
+
+        <div class="detail-card-heading">
+            <div>
+                <span>MÃ ĐƠN HÀNG</span>
+                <h3>@Model.OrderCode</h3>
+            </div>
+
+            <span class="detail-status">
+                @Model.OrderStatus
+            </span>
+        </div>
+
+        <div class="detail-grid">
+
+            <div class="detail-item">
+                <span><i class="fa-solid fa-user"></i> Khách hàng</span>
+                <strong>@Model.CustomerName</strong>
+            </div>
+
+            <div class="detail-item">
+                <span><i class="fa-solid fa-calendar"></i> Ngày đặt hàng</span>
+                <strong>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</strong>
+            </div>
+
+            <div class="detail-item">
+                <span><i class="fa-solid fa-money-bill"></i> Tổng tiền</span>
+                <strong class="detail-price">
+                    @Model.TotalAmount.ToString("N0") đ
+                </strong>
+            </div>
+
+            <div class="detail-item">
+                <span><i class="fa-solid fa-credit-card"></i> Thanh toán</span>
+                <strong>@Model.PaymentStatus</strong>
+            </div>
+
+        </div>
+
+        <div class="detail-note">
+            <i class="fa-solid fa-circle-info"></i>
+            Đây là thông tin tổng quan của đơn hàng.
+        </div>
+
+    </div>
+
+</div>
+
+@section styles {
+    <style>
+        .admin-order-detail {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .detail-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+            .detail-heading h2 {
+                color: #183b36;
+                font-size: 24px;
+                font-weight: 800;
+                margin-bottom: 7px;
+            }
+
+                .detail-heading h2 i {
+                    color: #39766b;
+                }
+
+            .detail-heading p {
+                color: #82938c;
+                font-size: 13px;
+            }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 16px;
+            background: #eaf2ee;
+            color: #39766b;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+            .btn-back:hover {
+                background: #dcece5;
+                color: #183b36;
+            }
+
+        .detail-card {
+            background: #fff;
+            border: 1px solid #e5ece8;
+            border-radius: 13px;
+            overflow: hidden;
+        }
+
+        .detail-card-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 24px;
+            background: #eaf2ee;
+        }
+
+            .detail-card-heading span:first-child {
+                color: #82938c;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+
+            .detail-card-heading h3 {
+                color: #183b36;
+                font-size: 20px;
+                margin-top: 7px;
+            }
+
+        .detail-status {
+            padding: 8px 13px;
+            border-radius: 20px;
+            background: #fff4df;
+            color: #a66a12;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0;
+            padding: 10px 24px;
+        }
+
+        .detail-item {
+            padding: 22px 10px;
+            border-bottom: 1px solid #edf1ee;
+        }
+
+            .detail-item span {
+                display: block;
+                color: #82938c;
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+
+                .detail-item span i {
+                    color: #39766b;
+                    margin-right: 6px;
+                }
+
+            .detail-item strong {
+                color: #263c36;
+                font-size: 14px;
+            }
+
+            .detail-item .detail-price {
+                color: #39766b;
+                font-size: 19px;
+            }
+
+        .detail-note {
+            margin: 20px 24px 24px;
+            padding: 13px;
+            border-radius: 8px;
+            background: #f3f7f5;
+            color: #71847b;
+            font-size: 12px;
+        }
+
+            .detail-note i {
+                color: #39766b;
+                margin-right: 6px;
+            }
+
+        @@media (max-width: 600px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+                padding: 8px 15px;
+            }
+
+            .detail-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .detail-card-heading {
+                padding: 18px;
+            }
+        }
+    </style>
+}

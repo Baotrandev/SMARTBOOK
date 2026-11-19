@@ -1,0 +1,792 @@
+﻿
+@model IEnumerable<SmartBook.Models.AdminReviewViewModel>
+
+@using System.Linq
+
+@{
+    ViewBag.Title = "Đánh giá cửa hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var reviews = Model ?? Enumerable.Empty<SmartBook.Models.AdminReviewViewModel>();
+
+    int totalReviews = ViewBag.TotalReviews == null ? 0 : (int)ViewBag.TotalReviews;
+    int approvedReviews = ViewBag.ApprovedReviews == null ? 0 : (int)ViewBag.ApprovedReviews;
+    int pendingReviews = ViewBag.PendingReviews == null ? 0 : (int)ViewBag.PendingReviews;
+}
+
+<div class="admin-reviews-page">
+
+    <!-- TIÊU ĐỀ -->
+    <div class="reviews-heading">
+        <div>
+            <h2>
+                <i class="fa-solid fa-star"></i>
+                Đánh giá cửa hàng
+            </h2>
+            <p>Quản lý nhận xét và mức độ hài lòng của khách hàng tại SmartBook.</p>
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="review-alert success">
+            <i class="fa-solid fa-circle-check"></i>
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="review-alert error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- THỐNG KÊ -->
+    <div class="review-stats">
+
+        <div class="review-stat-card">
+            <div class="review-stat-icon total">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <div>
+                <span>Tổng đánh giá</span>
+                <h3>@totalReviews</h3>
+            </div>
+        </div>
+
+        <div class="review-stat-card">
+            <div class="review-stat-icon approved">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <span>Đã duyệt</span>
+                <h3>@approvedReviews</h3>
+            </div>
+        </div>
+
+        <div class="review-stat-card">
+            <div class="review-stat-icon pending">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <span>Chờ duyệt</span>
+                <h3>@pendingReviews</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TÌM KIẾM -->
+    <div class="review-filter-card">
+
+        @using (Html.BeginForm("Index", "AdminReviews", FormMethod.Get))
+        {
+            <div class="review-filter-row">
+
+                <div class="review-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input type="text"
+                           name="keyword"
+                           value="@ViewBag.Keyword"
+                           placeholder="Tìm khách hàng, tên sách hoặc nội dung..." />
+                </div>
+
+                <select name="status" class="review-status-select">
+                    <option value="">Tất cả đánh giá</option>
+
+                    <option value="approved"
+                            @(ViewBag.Status != null && ViewBag.Status.ToString() == "approved" ? "selected" : "")>
+                        Đã duyệt
+                    </option>
+
+                    <option value="pending"
+                            @(ViewBag.Status != null && ViewBag.Status.ToString() == "pending" ? "selected" : "")>
+                        Chờ duyệt
+                    </option>
+                </select>
+
+                <button type="submit" class="btn-review-search">
+                    <i class="fa-solid fa-filter"></i>
+                    Tìm kiếm
+                </button>
+
+                <a href="@Url.Action("Index", "AdminReviews")"
+                   class="btn-review-reset">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Làm mới
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+    <!-- DANH SÁCH ĐÁNH GIÁ -->
+    <div class="review-table-card">
+
+        <div class="review-table-heading">
+            <div>
+                <h3>Danh sách đánh giá</h3>
+                <p>Kiểm tra nội dung và duyệt đánh giá của khách hàng.</p>
+            </div>
+
+            <span class="review-count">
+                @reviews.Count() đánh giá
+            </span>
+        </div>
+
+        <div class="review-table-scroll">
+
+            <table class="review-table">
+
+                <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Khách hàng</th>
+                        <th>Sản phẩm</th>
+                        <th>Đánh giá</th>
+                        <th>Nội dung</th>
+                        <th>Ngày gửi</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (reviews.Any())
+                    {
+                        foreach (var item in reviews)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="review-id">#@item.ReviewId</span>
+                                </td>
+
+                                <td>
+                                    <div class="review-customer">
+                                        <div class="review-avatar">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <span>@item.CustomerName</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="review-book">
+                                        @item.BookTitle
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="review-stars"
+                                         title="@item.Rating/5 sao">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fa-solid fa-star @(i <= item.Rating ? "filled" : "")"></i>
+                                        }
+                                    </div>
+                                    <span class="rating-number">@item.Rating/5</span>
+                                </td>
+
+                                <td>
+                                    <div class="review-content">
+                                        @if (!string.IsNullOrWhiteSpace(item.ReviewTitle))
+                                        {
+                                            <strong>@item.ReviewTitle</strong>
+                                        }
+
+                                        <p>
+                                            @(string.IsNullOrWhiteSpace(item.ReviewContent)
+                                                ? "Không có nội dung nhận xét."
+                                                : item.ReviewContent)
+                                        </p>
+                                    </div>
+                                </td>
+
+                                <td class="review-date">
+                                    @item.ReviewDate.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+
+                                <td>
+                                    @if (item.IsApproved)
+                                    {
+                                        <span class="review-status approved">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            Đã duyệt
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="review-status pending">
+                                            <i class="fa-solid fa-clock"></i>
+                                            Chờ duyệt
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="review-actions">
+
+                                        @using (Html.BeginForm(
+                                            "UpdateApproval",
+                                            "AdminReviews",
+                                            FormMethod.Post,
+                                            new { @class = "review-action-form" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            @Html.Hidden("id", item.ReviewId)
+
+                                            if (item.IsApproved)
+                                            {
+                                                @Html.Hidden("approved", "false")
+
+                                                <button type="submit"
+                                                        class="btn-review-hide"
+                                                        title="Ẩn đánh giá">
+                                                    <i class="fa-solid fa-eye-slash"></i>
+                                                    Ẩn
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                @Html.Hidden("approved", "true")
+
+                                                <button type="submit"
+                                                        class="btn-review-approve"
+                                                        title="Duyệt đánh giá">
+                                                    <i class="fa-solid fa-check"></i>
+                                                    Duyệt
+                                                </button>
+                                            }
+                                        }
+
+                                        @using (Html.BeginForm(
+                                            "Delete",
+                                            "AdminReviews",
+                                            FormMethod.Post,
+                                            new
+                                            {
+                                                @class = "review-action-form",
+                                                onsubmit = "return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');"
+                                            }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("id", item.ReviewId)
+
+                                            <button type="submit"
+                                                    class="btn-review-delete"
+                                                    title="Xóa đánh giá">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        }
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="review-empty">
+                                <i class="fa-regular fa-comment-dots"></i>
+                                <h4>Chưa có đánh giá phù hợp</h4>
+                                <p>Thử thay đổi từ khóa hoặc bộ lọc của bạn.</p>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section styles {
+    <style>
+        .admin-reviews-page {
+            width: 100%;
+            min-width: 0;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .reviews-heading {
+            margin-bottom: 25px;
+        }
+
+            .reviews-heading h2 {
+                color: #183b36;
+                font-size: 25px;
+                font-weight: 800;
+                margin-bottom: 7px;
+            }
+
+                .reviews-heading h2 i {
+                    color: #39766b;
+                    margin-right: 8px;
+                }
+
+            .reviews-heading p {
+                color: #82938c;
+                font-size: 13px;
+                line-height: 1.6;
+            }
+
+        .review-alert {
+            padding: 13px 16px;
+            border-radius: 9px;
+            margin-bottom: 18px;
+            font-size: 13px;
+        }
+
+            .review-alert.success {
+                background: #e5f3eb;
+                color: #28734e;
+            }
+
+            .review-alert.error {
+                background: #fcebea;
+                color: #b54740;
+            }
+
+        /* THỐNG KÊ */
+        .review-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .review-stat-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #e5ece8;
+            border-radius: 12px;
+        }
+
+        .review-stat-icon {
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 11px;
+            font-size: 18px;
+        }
+
+            .review-stat-icon.total {
+                color: #28618b;
+                background: #e8f1f8;
+            }
+
+            .review-stat-icon.approved {
+                color: #28734e;
+                background: #e5f3eb;
+            }
+
+            .review-stat-icon.pending {
+                color: #a66a12;
+                background: #fff4df;
+            }
+
+        .review-stat-card span {
+            display: block;
+            color: #82938c;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .review-stat-card h3 {
+            color: #183b36;
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        /* TÌM KIẾM */
+        .review-filter-card {
+            padding: 17px;
+            background: #fff;
+            border: 1px solid #e5ece8;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .review-filter-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .review-search {
+            height: 43px;
+            flex: 1;
+            min-width: 180px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 13px;
+            border: 1px solid #dce6e1;
+            border-radius: 8px;
+            color: #82938c;
+        }
+
+            .review-search input {
+                width: 100%;
+                border: none;
+                outline: none;
+                color: #263c36;
+                font-family: inherit;
+                font-size: 12px;
+            }
+
+            .review-search:focus-within {
+                border-color: #39766b;
+                box-shadow: 0 0 0 3px rgba(57,118,107,.10);
+            }
+
+        .review-status-select {
+            height: 43px;
+            min-width: 155px;
+            padding: 0 12px;
+            border: 1px solid #dce6e1;
+            border-radius: 8px;
+            background: #fff;
+            color: #465a52;
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .btn-review-search,
+        .btn-review-reset {
+            height: 43px;
+            padding: 0 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .btn-review-search {
+            background: #183b36;
+            color: #fff;
+        }
+
+            .btn-review-search:hover {
+                background: #39766b;
+            }
+
+        .btn-review-reset {
+            background: #edf3f0;
+            color: #39766b;
+        }
+
+            .btn-review-reset:hover {
+                background: #dcece5;
+                color: #183b36;
+            }
+
+        /* BẢNG */
+        .review-table-card {
+            background: #fff;
+            border: 1px solid #e5ece8;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .review-table-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+        }
+
+            .review-table-heading h3 {
+                color: #183b36;
+                font-size: 16px;
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
+
+            .review-table-heading p {
+                color: #82938c;
+                font-size: 12px;
+            }
+
+        .review-count {
+            padding: 7px 12px;
+            border-radius: 20px;
+            background: #eaf2ee;
+            color: #39766b;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .review-table-scroll {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .review-table {
+            width: 100%;
+            min-width: 1200px;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+            .review-table thead {
+                background: #eaf2ee;
+            }
+
+            .review-table th {
+                padding: 15px 12px;
+                color: #183b36;
+                text-align: left;
+                font-weight: 700;
+                white-space: nowrap;
+                border-bottom: 1px solid #dce8e2;
+            }
+
+            .review-table td {
+                padding: 13px 12px;
+                color: #465a52;
+                vertical-align: middle;
+                border-bottom: 1px solid #edf1ee;
+            }
+
+            .review-table tbody tr:hover {
+                background: #f7faf8;
+            }
+
+            .review-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+        .review-id {
+            color: #28618b;
+            font-weight: 700;
+        }
+
+        .review-customer {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 140px;
+            color: #263c36;
+            font-weight: 600;
+        }
+
+        .review-avatar {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #e5f0eb;
+            color: #39766b;
+        }
+
+        .review-book {
+            display: block;
+            max-width: 180px;
+            color: #263c36;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .review-stars {
+            display: flex;
+            gap: 2px;
+            color: #dce3df;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+            .review-stars .filled {
+                color: #e9a23b;
+            }
+
+        .rating-number {
+            display: block;
+            margin-top: 5px;
+            color: #82938c;
+            font-size: 10px;
+        }
+
+        .review-content {
+            max-width: 250px;
+            line-height: 1.5;
+        }
+
+            .review-content strong {
+                display: block;
+                margin-bottom: 4px;
+                color: #263c36;
+                font-size: 12px;
+            }
+
+            .review-content p {
+                color: #71847b;
+                overflow-wrap: anywhere;
+            }
+
+        .review-date {
+            white-space: nowrap;
+            color: #71847b !important;
+        }
+
+        .review-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+            .review-status.approved {
+                background: #e5f3eb;
+                color: #28734e;
+            }
+
+            .review-status.pending {
+                background: #fff4df;
+                color: #a66a12;
+            }
+
+        .review-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .review-action-form {
+            display: inline-flex;
+            margin: 0;
+        }
+
+        .btn-review-approve,
+        .btn-review-hide,
+        .btn-review-delete {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-height: 32px;
+            padding: 7px 9px;
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-review-approve {
+            background: #e5f3eb;
+            color: #28734e;
+        }
+
+        .btn-review-hide {
+            background: #fff4df;
+            color: #a66a12;
+        }
+
+        .btn-review-delete {
+            width: 32px;
+            background: #fcebea;
+            color: #b54740;
+        }
+
+            .btn-review-approve:hover,
+            .btn-review-hide:hover,
+            .btn-review-delete:hover {
+                filter: brightness(.96);
+            }
+
+        .review-empty {
+            text-align: center;
+            padding: 55px 15px !important;
+        }
+
+            .review-empty > i {
+                display: block;
+                color: #a8bdb3;
+                font-size: 35px;
+                margin-bottom: 12px;
+            }
+
+            .review-empty h4 {
+                color: #183b36;
+                font-size: 15px;
+                margin-bottom: 6px;
+            }
+
+            .review-empty p {
+                color: #82938c;
+                font-size: 12px;
+            }
+
+        @@media (max-width: 1100px) {
+            .review-filter-row {
+                flex-wrap: wrap;
+            }
+
+            .review-search {
+                flex-basis: 100%;
+            }
+        }
+
+        @@media (max-width: 650px) {
+            .review-stats {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .review-stat-card {
+                padding: 14px;
+            }
+
+            .reviews-heading h2 {
+                font-size: 21px;
+            }
+
+            .review-filter-row > * {
+                width: 100%;
+            }
+
+            .review-status-select {
+                width: 100%;
+            }
+        }
+    </style>
+}

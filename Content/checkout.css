@@ -1,0 +1,199 @@
+﻿
+.checkout-container {
+    max-width: 1220px;
+    width: 92%;
+    margin: 35px auto 60px;
+    color: #23483e;
+    font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.checkout-heading {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+    .checkout-heading h1 {
+        color: #183b36;
+        font-size: 30px;
+        font-weight: 800;
+    }
+
+    .checkout-heading p {
+        color: #81938a;
+    }
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, .9fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.checkout-main {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.checkout-card {
+    background: #fff;
+    border: 1px solid #e1ece6;
+    border-radius: 15px;
+    padding: 23px;
+    box-shadow: 0 5px 20px rgba(35, 63, 53, .04);
+}
+
+    .checkout-card h2 {
+        color: #183b36;
+        font-size: 18px;
+        font-weight: 800;
+        margin: 0 0 18px;
+    }
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+.form-control {
+    width: 100%;
+    border: 1px solid #dce9e0;
+    border-radius: 9px;
+    padding: 12px;
+    outline: none;
+    color: #23483e;
+}
+
+    .form-control:focus {
+        border-color: #39766b;
+        box-shadow: 0 0 0 3px rgba(57, 118, 107, .1);
+    }
+
+.field-validation-error {
+    color: #c45b42;
+    font-size: 12px;
+}
+
+.choice-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border: 1px solid #dce9e0;
+    border-radius: 11px;
+    cursor: pointer;
+}
+
+    .choice-option input {
+        accent-color: #39766b;
+    }
+
+    .choice-option span {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .choice-option small {
+        color: #81938a;
+    }
+
+.voucher-hint {
+    color: #81938a;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.checkout-summary {
+    position: sticky;
+    top: 110px;
+}
+
+.checkout-product {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #edf2ee;
+}
+
+    .checkout-product img {
+        width: 65px;
+        height: 85px;
+        object-fit: cover;
+        border-radius: 7px;
+    }
+
+    .checkout-product strong {
+        font-size: 13px;
+    }
+
+    .checkout-product p {
+        color: #81938a;
+        font-size: 12px;
+        margin: 5px 0;
+    }
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 12px 0;
+    font-size: 13px;
+}
+
+.discount {
+    color: #39766b;
+}
+
+.grand-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 800;
+    margin: 18px 0;
+}
+
+    .grand-total strong {
+        color: #c45b42;
+        font-size: 22px;
+    }
+
+.btn-order {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    color: #fff;
+    background: #315e50;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+    .btn-order:hover {
+        background: #183b36;
+    }
+
+.back-cart {
+    display: block;
+    text-align: center;
+    margin-top: 14px;
+    color: #39766b;
+}
+
+@media (max-width: 800px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-summary {
+        position: static;
+    }
+}

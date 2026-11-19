@@ -1,0 +1,605 @@
+﻿
+@model IEnumerable<SmartBook.Models.book>
+
+@{
+    ViewBag.Title = "Quản lý sách";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section styles {
+    <style>
+        /* ===== TỔNG THỂ ===== */
+        .books-page {
+            width: 100%;
+            color: #263c36;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        /* ===== TIÊU ĐỀ ===== */
+        .books-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 26px;
+            flex-wrap: wrap;
+        }
+
+        .books-title h2 {
+            color: #183b36;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 8px;
+            letter-spacing: -.5px;
+        }
+
+        .books-title p {
+            color: #82938c;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        .books-title .title-icon {
+            color: #39766b;
+            margin-right: 8px;
+        }
+
+        /* ===== NÚT THÊM ===== */
+        .btn-create-book {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 12px 19px;
+            border-radius: 9px;
+            background: #39766b;
+            color: #fff !important;
+            text-decoration: none !important;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(57,118,107,.15);
+            transition: all .2s ease;
+            white-space: nowrap;
+        }
+
+            .btn-create-book:hover {
+                background: #183b36;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 14px rgba(24,59,54,.18);
+            }
+
+        /* ===== THÔNG BÁO ===== */
+        .books-alert {
+            padding: 13px 17px;
+            border-radius: 9px;
+            margin-bottom: 18px;
+            font-size: 13px;
+        }
+
+            .books-alert.success {
+                background: #e7f4eb;
+                color: #28734e;
+                border: 1px solid #cce8d7;
+            }
+
+            .books-alert.error {
+                background: #fcebea;
+                color: #b54740;
+                border: 1px solid #f3d0cd;
+            }
+
+        /* ===== THANH TÌM KIẾM ===== */
+        .books-search-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid #e5ece8;
+            border-radius: 12px;
+            padding: 17px;
+            margin-bottom: 22px;
+            box-shadow: 0 3px 12px rgba(24,59,54,.025);
+        }
+
+        .books-search-input-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+        }
+
+            .books-search-input-wrap i {
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #82938c;
+                font-size: 14px;
+            }
+
+        .books-search-input {
+            width: 100%;
+            height: 45px;
+            padding: 0 15px 0 42px;
+            border: 1px solid #dfe8e3;
+            border-radius: 8px;
+            outline: none;
+            background: #fbfcfb;
+            color: #263c36;
+            font-family: inherit;
+            font-size: 13px;
+            transition: .2s;
+        }
+
+            .books-search-input:focus {
+                background: #fff;
+                border-color: #39766b;
+                box-shadow: 0 0 0 3px rgba(57,118,107,.09);
+            }
+
+            .books-search-input::placeholder {
+                color: #a1afa8;
+            }
+
+        .btn-books-search {
+            height: 45px;
+            padding: 0 23px;
+            border: none;
+            border-radius: 8px;
+            background: #183b36;
+            color: white;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .2s;
+            white-space: nowrap;
+        }
+
+            .btn-books-search:hover {
+                background: #39766b;
+            }
+
+        /* ===== KHUNG BẢNG ===== */
+        .books-table-card {
+            background: #fff;
+            border: 1px solid #e5ece8;
+            border-radius: 13px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(24,59,54,.035);
+        }
+
+        .books-table-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 22px;
+            border-bottom: 1px solid #e9efeb;
+            gap: 12px;
+        }
+
+            .books-table-top h3 {
+                margin: 0;
+                color: #183b36;
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+                .books-table-top h3 i {
+                    color: #39766b;
+                    margin-right: 8px;
+                }
+
+        .books-table-note {
+            color: #91a39b;
+            font-size: 11px;
+        }
+
+        .books-table-scroll {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .books-table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 13px;
+        }
+
+            .books-table thead {
+                background: #f0f5f2;
+            }
+
+            .books-table th {
+                padding: 16px 14px;
+                color: #526b60;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .35px;
+                text-align: left;
+                white-space: nowrap;
+                border-bottom: 1px solid #e2ebe5;
+            }
+
+            .books-table td {
+                padding: 13px 14px;
+                color: #52635b;
+                vertical-align: middle;
+                border-bottom: 1px solid #edf1ee;
+            }
+
+            .books-table tbody tr {
+                transition: background .18s;
+            }
+
+                .books-table tbody tr:hover {
+                    background: #f7faf8;
+                }
+
+                .books-table tbody tr:last-child td {
+                    border-bottom: none;
+                }
+
+        /* ===== MÃ SÁCH ===== */
+        .book-code {
+            width: 65px;
+            text-align: center;
+            color: #82938c !important;
+            font-weight: 600;
+        }
+
+        /* ===== ẢNH BÌA ===== */
+        .book-cover-cell {
+            width: 90px;
+        }
+
+        .book-cover {
+            display: block;
+            width: 55px;
+            height: 76px;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 5px;
+            border: 1px solid #e5ece8;
+            background: #f3f7f5;
+            box-shadow: 0 2px 5px rgba(0,0,0,.06);
+        }
+
+        /* ===== TÊN SÁCH ===== */
+        .book-name {
+            min-width: 190px;
+            max-width: 280px;
+            color: #263c36 !important;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        /* ===== ISBN ===== */
+        .book-isbn {
+            color: #82938c !important;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        /* ===== GIÁ ===== */
+        .book-price {
+            color: #39766b !important;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* ===== TRẠNG THÁI ===== */
+        .book-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #e7f4eb;
+            color: #28734e;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+            .book-status i {
+                font-size: 7px;
+            }
+
+        /* ===== THAO TÁC ===== */
+        .book-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+        }
+
+            .book-actions a {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                gap: 5px;
+                padding: 8px 10px;
+                border-radius: 6px;
+                text-decoration: none !important;
+                font-size: 11px;
+                font-weight: 600;
+                transition: all .2s;
+            }
+
+                .book-actions a:hover {
+                    transform: translateY(-1px);
+                    filter: brightness(.96);
+                }
+
+        .btn-detail-book {
+            background: #eaf2f8;
+            color: #28618b !important;
+        }
+
+        .btn-edit-book {
+            background: #fff3df;
+            color: #a66a12 !important;
+        }
+
+        .btn-delete-book {
+            background: #fcebea;
+            color: #b54740 !important;
+        }
+
+        /* ===== KHÔNG CÓ DỮ LIỆU ===== */
+        .books-empty {
+            padding: 55px 20px !important;
+            text-align: center;
+            color: #82938c !important;
+        }
+
+            .books-empty i {
+                display: block;
+                font-size: 35px;
+                color: #b7c9c0;
+                margin-bottom: 13px;
+            }
+
+            .books-empty strong {
+                display: block;
+                color: #52675d;
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+
+            .books-empty span {
+                font-size: 12px;
+            }
+
+        /* ===== RESPONSIVE ===== */
+        @@media (max-width: 768px) {
+            .books-title h2 {
+                font-size: 21px;
+            }
+
+            .books-header {
+                align-items: flex-start;
+            }
+
+            .books-search-card {
+                flex-wrap: wrap;
+            }
+
+            .books-search-input-wrap {
+                flex-basis: 100%;
+            }
+
+            .btn-books-search {
+                width: 100%;
+            }
+
+            .books-table-top {
+                padding: 16px;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .books-title h2 {
+                font-size: 19px;
+            }
+
+            .books-table-note {
+                display: none;
+            }
+
+            .btn-create-book {
+                width: 100%;
+            }
+        }
+        /* Font tiếng Việt cho nút Thêm sách mới */
+        .admin-books-page .btn-add-book {
+            font-family: 'Be Vietnam Pro', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            font-style: normal !important;
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+            white-space: nowrap;
+            line-height: 1.5;
+        }
+    </style>
+}
+
+<div class="books-page">
+
+    <!-- TIÊU ĐỀ TRANG -->
+    <div class="books-header">
+        <div class="books-title">
+            <h2>
+                <i class="fa-solid fa-book-open title-icon"></i>
+                Quản lý sách SmartBook
+            </h2>
+            <p>
+                Quản lý thông tin sách và danh mục sản phẩm trong cửa hàng.
+            </p>
+        </div>
+
+        <a href="@Url.Action("Create", "AdminBooks")" class="btn-add-book">
+            <i class="fa-solid fa-plus"></i>
+            <span>Thêm sách mới</span>
+        </a>
+      
+        
+    </div>
+
+    <!-- THÔNG BÁO -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="books-alert success">
+            <i class="fa-solid fa-circle-check"></i>
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="books-alert error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- TÌM KIẾM -->
+    @using (Html.BeginForm("Index", "AdminBooks", FormMethod.Get,
+        new { @class = "books-search-card" }))
+    {
+        <div class="books-search-input-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input type="text"
+                   name="keyword"
+                   value="@ViewBag.Keyword"
+                   class="books-search-input"
+                   placeholder="Tìm kiếm theo tên sách hoặc mã ISBN..." />
+        </div>
+
+        <button type="submit" class="btn-books-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Tìm kiếm
+        </button>
+    }
+
+    <!-- BẢNG DANH SÁCH SÁCH -->
+    <div class="books-table-card">
+
+        <div class="books-table-top">
+            <h3>
+                <i class="fa-solid fa-list"></i>
+                Danh sách sách
+            </h3>
+
+            <span class="books-table-note">
+                Thông tin sách trong hệ thống SmartBook
+            </span>
+        </div>
+
+        <div class="books-table-scroll">
+
+            <table class="books-table">
+
+                <thead>
+                    <tr>
+                        <th>Mã sách</th>
+                        <th>Ảnh bìa</th>
+                        <th>Tên sách</th>
+                        <th>ISBN</th>
+                        <th>Giá bán</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="book-code">
+                                    #@item.book_id
+                                </td>
+
+                                <td class="book-cover-cell">
+                                    <img src="@Url.Content(string.IsNullOrWhiteSpace(item.cover_image_url) ? "~/Images/no-image.png" : item.cover_image_url)"
+                                         alt="Ảnh bìa sách"
+                                         class="book-cover"
+                                         onerror="this.onerror=null;this.src='@Url.Content("~/Images/no-image.png")';" />
+                                </td>
+
+                                <td class="book-name">
+                                    @item.book_title
+                                </td>
+
+                                <td class="book-isbn">
+                                    @(item.ISBN ?? "Chưa cập nhật")
+                                </td>
+
+                                <td class="book-price">
+                                    @item.sale_price.ToString("N0") đ
+                                </td>
+
+                                <td>
+                                    <span class="book-status">
+                                        <i class="fa-solid fa-circle"></i>
+                                        @item.status
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="book-actions">
+
+                                        @Html.ActionLink(
+                                                 "Chi tiết",
+                                                 "Details",
+                                                 new { id = item.book_id },
+                                                 new { @class = "btn-detail-book" }
+                                             )
+
+                                        @Html.ActionLink(
+                                                 "Sửa",
+                                                 "Edit",
+                                                 new { id = item.book_id },
+                                                 new { @class = "btn-edit-book" }
+                                             )
+
+                                        @Html.ActionLink(
+                                                 "Xóa",
+                                                 "Delete",
+                                                 new { id = item.book_id },
+                                                 new { @class = "btn-delete-book" }
+                                             )
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="books-empty">
+                                <i class="fa-solid fa-book-open"></i>
+                                <strong>Chưa tìm thấy sách phù hợp</strong>
+                                <span>Hãy thử tìm kiếm bằng tên sách hoặc ISBN khác.</span>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>

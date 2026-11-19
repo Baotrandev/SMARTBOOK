@@ -1,0 +1,861 @@
+﻿
+@using System
+@using System.Linq
+@using System.Collections.Generic
+@using SmartBook.Models
+@using SmartBook.ViewModels
+
+@{
+    var cartItems = Session["SmartBookCart"] as List<CartItemViewModel>;
+    int cartCount = cartItems == null ? 0 : cartItems.Sum(x => x.Quantity);
+
+    bool isCustomerLoggedIn = Session["CustomerID"] != null;
+
+    string currentController =
+        Convert.ToString(ViewContext.RouteData.Values["controller"]);
+
+    string currentAction =
+        Convert.ToString(ViewContext.RouteData.Values["action"]);
+
+    Func<string, string> activeClass = controller =>
+        string.Equals(currentController, controller,
+            StringComparison.OrdinalIgnoreCase)
+            ? "active"
+            : "";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewBag.Title - SmartBook</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <link href="@Url.Content("~/Content/bootstrap.min.css")"
+          rel="stylesheet" />
+
+    <link href="@Url.Content("~/Content/Site.css")"
+          rel="stylesheet" />
+
+    <link href="@Url.Content("~/Content/SmartBookHeader.css")"
+          rel="stylesheet" />
+
+    <style>
+        /* ==================================
+           SMARTBOOK CUSTOMER LAYOUT
+        ================================== */
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+        }
+
+            body.customer-site {
+                font-family: 'Be Vietnam Pro', sans-serif;
+                background: #f6f9f7;
+                color: #263d35;
+            }
+
+        /* HEADER */
+
+        .main-header {
+            background: #fff;
+            position: relative;
+            z-index: 100;
+        }
+
+        /* KHUNG CHINH */
+
+        .customer-workspace {
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+            min-height: 680px;
+            background: #f6f9f7;
+        }
+
+        /* SIDEBAR */
+
+        .customer-sidebar {
+            width: 265px;
+            min-width: 265px;
+            flex: 0 0 265px;
+            background: #fff;
+            border-right: 1px solid #e6ede8;
+            padding: 22px 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* THONG TIN TAI KHOAN */
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 9px 21px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #edf1ee;
+        }
+
+        .sidebar-avatar {
+            width: 45px;
+            height: 45px;
+            min-width: 45px;
+            border-radius: 50%;
+            background: #eaf1ec;
+            color: #315e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .sidebar-user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 0;
+        }
+
+            .sidebar-user-info strong {
+                color: #203f36;
+                font-size: 12px;
+                font-weight: 800;
+            }
+
+            .sidebar-user-info span {
+                color: #829087;
+                font-size: 10px;
+                overflow-wrap: anywhere;
+                line-height: 1.6;
+            }
+
+        /* NHOM MENU */
+
+        .sidebar-section {
+            margin-bottom: 22px;
+        }
+
+        .sidebar-heading {
+            padding: 0 11px;
+            margin-bottom: 9px;
+            color: #9aa89f;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-link {
+            width: 100%;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            margin-bottom: 3px;
+            border-radius: 8px;
+            color: #52675c;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none !important;
+            transition: all .2s ease;
+        }
+
+            .sidebar-link i {
+                width: 19px;
+                text-align: center;
+                color: #648c7d;
+                font-size: 14px;
+            }
+
+            .sidebar-link:hover {
+                background: #f0f5f1;
+                color: #203f36;
+            }
+
+                .sidebar-link:hover i {
+                    color: #315e50;
+                }
+
+            .sidebar-link.active {
+                background: #eaf1ec;
+                color: #203f36;
+                font-weight: 800;
+            }
+
+                .sidebar-link.active i {
+                    color: #315e50;
+                }
+
+        /* DANG XUAT */
+
+        .sidebar-logout {
+            padding-top: 14px;
+            border-top: 1px solid #edf1ee;
+        }
+
+            .sidebar-logout form {
+                width: 100%;
+                margin: 0;
+            }
+
+            .sidebar-logout button {
+                width: 100%;
+                min-height: 42px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 12px;
+                border: none;
+                border-radius: 8px;
+                background: transparent;
+                color: #b65d52;
+                font-family: inherit;
+                font-size: 12px;
+                font-weight: 700;
+                text-align: left;
+                cursor: pointer;
+                transition: .2s;
+            }
+
+                .sidebar-logout button:hover {
+                    background: #fff1ee;
+                }
+
+                .sidebar-logout button i {
+                    width: 19px;
+                    text-align: center;
+                }
+
+        /* LOI CHAO CUOI SIDEBAR */
+
+        .sidebar-bottom {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-top: auto;
+            padding: 18px 9px 5px;
+            border-top: 1px solid #edf1ee;
+            color: #9a8155;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+            .sidebar-bottom i {
+                color: #c9a96e;
+            }
+
+        /* NOI DUNG BEN PHAI */
+
+        .customer-page-content {
+            flex: 1;
+            min-width: 0;
+            padding: 28px 25px;
+            background: #f6f9f7;
+        }
+
+            .customer-page-content .content-inner {
+                width: 100%;
+                max-width: 1500px;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+        /* FOOTER */
+
+        .main-footer {
+            position: relative;
+            width: 100%;
+        }
+
+        /* TABLET */
+
+        @@media (max-width: 992px) {
+            .customer-sidebar {
+                width: 230px;
+                min-width: 230px;
+                flex-basis: 230px;
+                padding: 18px 10px;
+            }
+
+            .customer-page-content {
+                padding: 22px 16px;
+            }
+
+            .sidebar-link {
+                font-size: 11px;
+                gap: 9px;
+            }
+        }
+
+        /* DIEN THOAI */
+
+        @@media (max-width: 768px) {
+            .customer-workspace {
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            .customer-sidebar {
+                width: 100%;
+                min-width: 0;
+                flex: none;
+                padding: 15px;
+                border-right: none;
+                border-bottom: 1px solid #e6ede8;
+            }
+
+            .sidebar-user {
+                padding-bottom: 13px;
+                margin-bottom: 13px;
+            }
+
+            .sidebar-section {
+                margin-bottom: 12px;
+            }
+
+                .sidebar-section:first-of-type {
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 3px 7px;
+                }
+
+            .sidebar-heading {
+                grid-column: 1 / -1;
+            }
+
+            .sidebar-link {
+                min-height: 40px;
+                padding: 9px;
+                font-size: 11px;
+            }
+
+            .sidebar-bottom {
+                margin-top: 12px;
+            }
+
+            .customer-page-content {
+                padding: 20px 13px;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .sidebar-section:first-of-type {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .customer-page-content {
+                padding: 15px 10px;
+            }
+        }
+    </style>
+
+    @RenderSection("styles", required: false)
+</head>
+
+<body class="customer-site">
+
+    <!-- THANH THONG BAO -->
+
+    <div class="top-bar">
+        <div class="container top-bar-inner">
+
+            <span>
+                <i class="fa-solid fa-truck-fast"></i>
+                Giao hàng toàn quốc
+            </span>
+
+            <span>
+                <i class="fa-solid fa-gift"></i>
+                Ưu đãi đặc biệt dành cho người yêu sách
+            </span>
+
+            <span>
+                <i class="fa-solid fa-headset"></i>
+                Hỗ trợ khách hàng 24/7
+            </span>
+
+        </div>
+    </div>
+
+    <!-- HEADER -->
+
+    <header class="main-header">
+
+        <div class="container header-main">
+
+            <!-- LOGO -->
+
+            <a href="@Url.Action("Index", "Home")" class="brand">
+
+                <span class="brand-icon">
+                    <i class="fa-solid fa-book-open"></i>
+                </span>
+
+                <span class="brand-text">
+                    Smart<span>Book.</span>
+                    <small>READ • DISCOVER • GROW</small>
+                </span>
+
+            </a>
+
+            <!-- TIM KIEM -->
+
+            <form action="@Url.Action("Index", "Products")"
+                  method="get"
+                  class="search-form">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input type="text"
+                       name="keyword"
+                       value="@Request.QueryString["keyword"]"
+                       placeholder="Tìm kiếm sách, tác giả, thể loại..." />
+
+                <button type="submit">Tìm kiếm</button>
+
+            </form>
+
+            <!-- HEADER ACTIONS -->
+
+            <div class="header-actions">
+
+                <a href="@Url.Action("Index", "Cart")"
+                   class="cart-link">
+
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    Giỏ hàng
+
+                    @if (cartCount > 0)
+                    {
+                        <span class="cart-badge">@cartCount</span>
+                    }
+
+                </a>
+
+                <a href="@Url.Action("Login", "Admin")"
+                   class="admin-login-link"
+                   title="Đăng nhập quản trị">
+
+                    <i class="fa-solid fa-user-shield"></i>
+                    Admin
+
+                </a>
+
+                @if (!isCustomerLoggedIn)
+                {
+                    <a href="@Url.Action("Login", "Account")"
+                       class="login-button">
+
+                        <i class="fa-regular fa-user"></i>
+                        Tài khoản
+
+                    </a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Index", "Account")"
+                       class="login-button">
+
+                        <i class="fa-regular fa-user"></i>
+                        Tài khoản
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- CUSTOMER WORKSPACE -->
+
+    <div class="customer-workspace">
+
+        <!-- SIDEBAR -->
+
+        <aside class="customer-sidebar">
+
+            <!-- THONG TIN KHACH HANG -->
+
+            <div class="sidebar-user">
+
+                <div class="sidebar-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="sidebar-user-info">
+
+                    <strong>Tài khoản SmartBook</strong>
+
+                    @if (isCustomerLoggedIn)
+                    {
+                        <span>
+                            Xin chào, @Session["CustomerName"]
+                        </span>
+                    }
+                    else
+                    {
+                        <span>
+                            Chào mừng bạn đến với SmartBook
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+            <!-- DIEU HUONG WEBSITE -->
+
+            <div class="sidebar-section">
+
+                <div class="sidebar-heading">
+                    ĐIỀU HƯỚNG WEBSITE
+                </div>
+
+                <a href="@Url.Action("Index", "Home")"
+                   class="sidebar-link @activeClass("Home")">
+
+                    <i class="fa-solid fa-house"></i>
+                    <span>Trang chủ</span>
+
+                </a>
+
+                <a href="@Url.Action("About", "Home")"
+                   class="sidebar-link">
+
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Giới thiệu</span>
+
+                </a>
+
+                <a href="@Url.Action("Index", "Products")"
+                   class="sidebar-link @activeClass("Products")">
+
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Thể loại</span>
+
+                </a>
+
+                <a href="@Url.Action("Index", "Products")"
+                   class="sidebar-link">
+
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span>Mua sách</span>
+
+                </a>
+
+                <a href="@Url.Action("Contact", "Home")"
+                   class="sidebar-link">
+
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Liên hệ</span>
+
+                </a>
+
+                <a href="@Url.Action("Index", "Reviews")"
+                   class="sidebar-link @activeClass("Reviews")">
+
+                    <i class="fa-solid fa-star"></i>
+                    <span>Đánh giá</span>
+
+                </a>
+
+                <a href="@Url.Action("Index", "Orders")"
+                   class="sidebar-link @activeClass("Orders")">
+
+                    <i class="fa-solid fa-box"></i>
+                    <span>Đơn hàng của tôi</span>
+
+                </a>
+
+            </div>
+
+            <!-- TAI KHOAN -->
+
+            @if (isCustomerLoggedIn)
+            {
+                <div class="sidebar-section">
+
+                    <div class="sidebar-heading">
+                        TÀI KHOẢN CỦA TÔI
+                    </div>
+
+                    <a href="@Url.Action("Index", "Account")"
+                       class="sidebar-link @activeClass("Account")">
+
+                        <i class="fa-solid fa-user"></i>
+                        <span>Thông tin cá nhân</span>
+
+                    </a>
+
+                    <a href="@Url.Action("EditProfile", "Account")"
+                       class="sidebar-link">
+
+                        <i class="fa-solid fa-user-pen"></i>
+                        <span>Chỉnh sửa hồ sơ</span>
+
+                    </a>
+
+                    <a href="@Url.Action("ChangePassword", "Account")"
+                       class="sidebar-link">
+
+                        <i class="fa-solid fa-lock"></i>
+                        <span>Đổi mật khẩu</span>
+
+                    </a>
+
+                    <a href="@Url.Action("Index", "Orders")"
+                       class="sidebar-link">
+
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Lịch sử đơn hàng</span>
+
+                    </a>
+
+                </div>
+
+                <!-- DANG XUAT -->
+
+                <div class="sidebar-logout">
+
+                    @using (Html.BeginForm(
+                        "Logout",
+                        "Account",
+                        FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit">
+
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            Đăng xuất
+
+                        </button>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="sidebar-section">
+
+                    <div class="sidebar-heading">
+                        TÀI KHOẢN
+                    </div>
+
+                    <a href="@Url.Action("Login", "Account")"
+                       class="sidebar-link">
+
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Đăng nhập</span>
+
+                    </a>
+
+                    <a href="@Url.Action("Register", "Account")"
+                       class="sidebar-link">
+
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Đăng ký</span>
+
+                    </a>
+
+                </div>
+            }
+
+            <!-- FOOTER SIDEBAR -->
+
+            <div class="sidebar-bottom">
+
+                <i class="fa-solid fa-book-open"></i>
+
+                <span>
+                    Khám phá tri thức mỗi ngày
+                </span>
+
+            </div>
+
+        </aside>
+
+        <!-- NOI DUNG TRANG -->
+
+        <main class="customer-page-content">
+
+            <div class="container content-inner">
+
+                @RenderBody()
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <footer class="main-footer">
+
+        <div class="container footer-content">
+
+            <!-- THONG TIN SMARTBOOK -->
+
+            <div class="footer-column footer-brand">
+
+                <a href="@Url.Action("Index", "Home")"
+                   class="footer-logo">
+
+                    <i class="fa-solid fa-book-open"></i>
+                    Smart<span>Book.</span>
+
+                </a>
+
+                <p>
+                    SmartBook là không gian dành cho những người yêu sách.
+                    Chúng tôi mang đến những cuốn sách chất lượng,
+                    giúp bạn khám phá tri thức và phát triển bản thân mỗi ngày.
+                </p>
+
+                <div class="social-links">
+
+                    <a href="#" aria-label="Facebook">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+
+                    <a href="#" aria-label="Instagram">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+
+                    <a href="#" aria-label="TikTok">
+                        <i class="fa-brands fa-tiktok"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- KHÁM PHÁ -->
+
+            <div class="footer-column">
+
+                <h4>Khám phá</h4>
+
+                <a href="@Url.Action("Index", "Home")">
+                    Trang chủ
+                </a>
+
+                <a href="@Url.Action("Index", "Products")">
+                    Tất cả sách
+                </a>
+
+                <a href="@Url.Action("Index", "Products")">
+                    Thể loại sách
+                </a>
+
+                <a href="@Url.Action("About", "Home")">
+                    Về SmartBook
+                </a>
+                <a href="@Url.Action("Index", "Reviews")">
+                    Đánh giá
+                </a>
+                <a href="@Url.Action("Index", "Orders")">
+                    Đơn hàng của tôi
+                </a>
+            </div>
+
+            <!-- HO TRO -->
+
+            <div class="footer-column">
+
+                <h4>Hỗ trợ khách hàng</h4>
+
+                <a href="#">Hướng dẫn mua hàng</a>
+                <a href="#">Chính sách thanh toán</a>
+                <a href="#">Chính sách vận chuyển</a>
+                <a href="#">Chính sách đổi trả</a>
+                <a href="#">Chính sách bảo mật</a>
+
+            </div>
+
+            <!-- LIEN HE -->
+
+            <div class="footer-column">
+
+                <h4>Thông tin liên hệ</h4>
+
+                <p>
+                    <i class="fa-regular fa-envelope"></i>
+                    smartbook@gmail.com
+                </p>
+
+                <p>
+                    <i class="fa-solid fa-phone"></i>
+                    0900 000 000
+                </p>
+
+                <p>
+                    <i class="fa-solid fa-location-dot"></i>
+                    Thành phố Hồ Chí Minh
+                </p>
+
+                <div class="footer-payment">
+
+                    <span>THANH TOÁN AN TOÀN</span>
+
+                    <div>
+                        <i class="fa-brands fa-cc-visa"></i>
+                        <i class="fa-brands fa-cc-mastercard"></i>
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER BOTTOM -->
+
+        <div class="footer-bottom">
+
+            <div class="container footer-bottom-content">
+
+                <p>
+                    © 2026 <strong>SmartBook</strong>.
+                    Mở trang sách, mở tương lai.
+                </p>
+
+                <p>
+                    Made with
+                    <i class="fa-solid fa-heart"></i>
+                    for book lovers.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+    <!-- JAVASCRIPT -->
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

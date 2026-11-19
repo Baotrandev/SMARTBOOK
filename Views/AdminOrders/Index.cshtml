@@ -1,0 +1,699 @@
+﻿
+@model IEnumerable<SmartBook.Models.AdminOrderViewModel>
+
+@using System.Linq
+
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var orders = Model ?? Enumerable.Empty<SmartBook.Models.AdminOrderViewModel>();
+
+    int totalOrders = orders.Count();
+    int pendingOrders = orders.Count(x => x.OrderStatus == "Cho xac nhan");
+    int deliveringOrders = orders.Count(x => x.OrderStatus == "Dang giao");
+    int deliveredOrders = orders.Count(x => x.OrderStatus == "Da giao");
+}
+
+<div class="admin-orders-page">
+
+    <!-- TIÊU ĐỀ -->
+    <div class="orders-heading">
+        <div>
+            <h2>
+                <i class="fa-solid fa-cart-shopping"></i>
+                Quản lý đơn hàng
+            </h2>
+            <p>Theo dõi và quản lý các đơn hàng của cửa hàng SmartBook.</p>
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="orders-alert success">
+            <i class="fa-solid fa-circle-check"></i>
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="orders-alert error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- THỐNG KÊ -->
+    <div class="orders-stat-grid">
+
+        <div class="orders-stat-card">
+            <div class="stat-icon all">
+                <i class="fa-solid fa-receipt"></i>
+            </div>
+            <div>
+                <span>Tổng đơn hàng</span>
+                <h3>@totalOrders</h3>
+            </div>
+        </div>
+
+        <div class="orders-stat-card">
+            <div class="stat-icon pending">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <span>Chờ xác nhận</span>
+                <h3>@pendingOrders</h3>
+            </div>
+        </div>
+
+        <div class="orders-stat-card">
+            <div class="stat-icon shipping">
+                <i class="fa-solid fa-truck-fast"></i>
+            </div>
+            <div>
+                <span>Đang giao</span>
+                <h3>@deliveringOrders</h3>
+            </div>
+        </div>
+
+        <div class="orders-stat-card">
+            <div class="stat-icon completed">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <span>Đã giao</span>
+                <h3>@deliveredOrders</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TÌM KIẾM VÀ LỌC -->
+    <div class="orders-filter-card">
+
+        @using (Html.BeginForm("Index", "AdminOrders", FormMethod.Get))
+        {
+            <div class="orders-filter-row">
+
+                <div class="orders-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input type="text"
+                           name="keyword"
+                           value="@ViewBag.Keyword"
+                           placeholder="Tìm mã đơn hàng hoặc tên khách hàng..." />
+                </div>
+
+                <div class="orders-status-filter">
+                    <select name="status">
+                        <option value="">Tất cả trạng thái</option>
+
+                        @if (ViewBag.StatusList != null)
+                        {
+                            foreach (string item in ViewBag.StatusList)
+                            {
+                                <option value="@item"
+                                        @(ViewBag.Status != null && ViewBag.Status.ToString() == item ? "selected" : "")>
+                                    @item
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-orders-search">
+                    <i class="fa-solid fa-filter"></i>
+                    Tìm kiếm
+                </button>
+
+                <a href="@Url.Action("Index", "AdminOrders")"
+                   class="btn-orders-reset">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Làm mới
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+    <!-- BẢNG ĐƠN HÀNG -->
+    <div class="orders-table-card">
+
+        <div class="orders-table-heading">
+            <div>
+                <h3>Danh sách đơn hàng</h3>
+                <p>Các đơn hàng được sắp xếp theo thời gian mới nhất.</p>
+            </div>
+
+            <span class="orders-count">
+                @totalOrders đơn hàng
+            </span>
+        </div>
+
+        <div class="orders-table-scroll">
+
+            <table class="orders-table">
+
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái đơn</th>
+                        <th>Thanh toán</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (orders.Any())
+                    {
+                        foreach (var item in orders)
+                        {
+                            string orderClass = "other";
+
+                            if (item.OrderStatus == "Cho xac nhan")
+                            {
+                                orderClass = "pending";
+                            }
+                            else if (item.OrderStatus == "Dang giao")
+                            {
+                                orderClass = "shipping";
+                            }
+                            else if (item.OrderStatus == "Da giao")
+                            {
+                                orderClass = "completed";
+                            }
+
+                            <tr>
+                                <td>
+                                    <span class="order-code">
+                                        @item.OrderCode
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="order-customer">
+                                        <div class="customer-avatar">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+
+                                        <span>@item.CustomerName</span>
+                                    </div>
+                                </td>
+
+                                <td class="order-date">
+                                    @item.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+
+                                <td class="order-total">
+                                    @item.TotalAmount.ToString("N0") đ
+                                </td>
+
+                                <td>
+                                    <span class="order-status @orderClass">
+                                        @item.OrderStatus
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="payment-status">
+                                        @item.PaymentStatus
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <a href="@Url.Action("Details", "AdminOrders",
+                                                new { id = item.OrderId })"
+                                       class="btn-order-detail"
+                                       title="Xem chi tiết">
+                                        <i class="fa-solid fa-eye"></i>
+                                        Chi tiết
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="orders-empty">
+                                <i class="fa-solid fa-box-open"></i>
+                                <h4>Không tìm thấy đơn hàng</h4>
+                                <p>Thử thay đổi từ khóa hoặc trạng thái tìm kiếm.</p>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section styles {
+    <style>
+        .admin-orders-page {
+            width: 100%;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .orders-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+            .orders-heading h2 {
+                color: #183b36;
+                font-size: 25px;
+                font-weight: 800;
+                margin-bottom: 7px;
+            }
+
+                .orders-heading h2 i {
+                    color: #39766b;
+                    margin-right: 8px;
+                }
+
+            .orders-heading p,
+            .orders-table-heading p {
+                color: #82938c;
+                font-size: 13px;
+            }
+
+        .orders-alert {
+            padding: 13px 16px;
+            border-radius: 9px;
+            margin-bottom: 18px;
+            font-size: 13px;
+        }
+
+            .orders-alert.success {
+                background: #e5f3eb;
+                color: #28734e;
+            }
+
+            .orders-alert.error {
+                background: #fcebea;
+                color: #b54740;
+            }
+
+        .orders-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .orders-stat-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #fff;
+            border: 1px solid #e5ece8;
+            border-radius: 12px;
+            padding: 19px;
+            min-width: 0;
+        }
+
+        .stat-icon {
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 11px;
+            font-size: 18px;
+        }
+
+            .stat-icon.all {
+                background: #e8f1f8;
+                color: #28618b;
+            }
+
+            .stat-icon.pending {
+                background: #fff4df;
+                color: #a66a12;
+            }
+
+            .stat-icon.shipping {
+                background: #e9edff;
+                color: #5968ad;
+            }
+
+            .stat-icon.completed {
+                background: #e5f3eb;
+                color: #28734e;
+            }
+
+        .orders-stat-card span {
+            display: block;
+            color: #82938c;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .orders-stat-card h3 {
+            color: #183b36;
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .orders-filter-card,
+        .orders-table-card {
+            background: #fff;
+            border: 1px solid #e5ece8;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .orders-filter-card {
+            padding: 17px;
+        }
+
+        .orders-filter-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .orders-search {
+            flex: 1;
+            min-width: 180px;
+            height: 43px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 13px;
+            border: 1px solid #dce6e1;
+            border-radius: 8px;
+            color: #82938c;
+        }
+
+            .orders-search input {
+                width: 100%;
+                border: none;
+                outline: none;
+                font-family: inherit;
+                font-size: 12px;
+                color: #263c36;
+            }
+
+        .orders-status-filter select {
+            height: 43px;
+            min-width: 175px;
+            padding: 0 12px;
+            border: 1px solid #dce6e1;
+            border-radius: 8px;
+            background: #fff;
+            color: #465a52;
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .btn-orders-search,
+        .btn-orders-reset {
+            height: 43px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .btn-orders-search {
+            background: #183b36;
+            color: #fff;
+        }
+
+            .btn-orders-search:hover {
+                background: #39766b;
+            }
+
+        .btn-orders-reset {
+            background: #edf3f0;
+            color: #39766b;
+        }
+
+            .btn-orders-reset:hover {
+                background: #dcece5;
+            }
+
+        .orders-table-card {
+            overflow: hidden;
+        }
+
+        .orders-table-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+            .orders-table-heading h3 {
+                color: #183b36;
+                font-size: 16px;
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
+
+        .orders-count {
+            background: #eaf2ee;
+            color: #39766b;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .orders-table-scroll {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .orders-table {
+            width: 100%;
+            min-width: 950px;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+            .orders-table thead {
+                background: #eaf2ee;
+            }
+
+            .orders-table th {
+                padding: 15px 13px;
+                text-align: left;
+                color: #183b36;
+                font-weight: 700;
+                white-space: nowrap;
+                border-bottom: 1px solid #dce8e2;
+            }
+
+            .orders-table td {
+                padding: 14px 13px;
+                border-bottom: 1px solid #edf1ee;
+                color: #465a52;
+                vertical-align: middle;
+            }
+
+            .orders-table tbody tr:hover {
+                background: #f7faf8;
+            }
+
+            .orders-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+        .order-code {
+            color: #28618b;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .order-customer {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 145px;
+            font-weight: 600;
+            color: #263c36;
+        }
+
+        .customer-avatar {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #e5f0eb;
+            color: #39766b;
+        }
+
+        .order-date {
+            white-space: nowrap;
+        }
+
+        .order-total {
+            color: #183b36 !important;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .order-status,
+        .payment-status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+            .order-status.pending {
+                background: #fff4df;
+                color: #a66a12;
+            }
+
+            .order-status.shipping {
+                background: #e9edff;
+                color: #5968ad;
+            }
+
+            .order-status.completed {
+                background: #e5f3eb;
+                color: #28734e;
+            }
+
+            .order-status.other {
+                background: #edf1ee;
+                color: #65756e;
+            }
+
+        .payment-status {
+            background: #edf3f0;
+            color: #39766b;
+        }
+
+        .btn-order-detail {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 11px;
+            border-radius: 7px;
+            background: #e8f1f8;
+            color: #28618b;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+            .btn-order-detail:hover {
+                background: #d8e8f4;
+                color: #28618b;
+            }
+
+        .orders-empty {
+            text-align: center;
+            padding: 55px 15px !important;
+        }
+
+            .orders-empty i {
+                font-size: 35px;
+                color: #a8bdb3;
+                margin-bottom: 12px;
+            }
+
+            .orders-empty h4 {
+                color: #183b36;
+                font-size: 15px;
+                margin-bottom: 6px;
+            }
+
+            .orders-empty p {
+                color: #82938c;
+                font-size: 12px;
+            }
+
+        @@media (max-width: 1100px) {
+            .orders-stat-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .orders-filter-row {
+                flex-wrap: wrap;
+            }
+
+            .orders-search {
+                flex-basis: 100%;
+            }
+        }
+
+        @@media (max-width: 600px) {
+            .orders-stat-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 9px;
+            }
+
+            .orders-stat-card {
+                padding: 12px;
+                gap: 9px;
+            }
+
+            .stat-icon {
+                width: 37px;
+                height: 37px;
+                font-size: 15px;
+            }
+
+            .orders-stat-card span {
+                font-size: 10px;
+            }
+
+            .orders-stat-card h3 {
+                font-size: 19px;
+            }
+
+            .orders-heading h2 {
+                font-size: 20px;
+            }
+
+            .orders-filter-row > * {
+                width: 100%;
+            }
+
+            .orders-status-filter select {
+                width: 100%;
+            }
+
+            .orders-table-heading {
+                padding: 15px;
+            }
+        }
+    </style>
+}

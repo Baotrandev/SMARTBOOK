@@ -1,0 +1,60 @@
+﻿
+@model SmartBook.Models.customer
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Chỉnh sửa hồ sơ";
+}
+
+<div class="account-page">
+    <div class="account-page-heading">
+        <h2>Chỉnh sửa hồ sơ</h2>
+        <p>Cập nhật thông tin cá nhân của bạn.</p>
+    </div>
+
+    <div class="account-card">
+        @using (Html.BeginForm("EditProfile", "Account", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="account-form-group">
+                <label>Họ và tên</label>
+                <input type="text"
+                       name="full_name"
+                       value="@Model.full_name"
+                       class="form-control"
+                       required />
+                @Html.ValidationMessage("full_name", "", new { @class = "text-danger" })
+            </div>
+
+            <div class="account-form-group">
+                <label>Email</label>
+                <input type="email"
+                       value="@Model.email"
+                       class="form-control"
+                       readonly />
+                <small>Email đăng nhập không thể thay đổi tại đây.</small>
+            </div>
+
+            <div class="account-form-group">
+                <label>Số điện thoại</label>
+                <input type="text"
+                       name="phone"
+                       value="@Model.phone"
+                       class="form-control" />
+            </div>
+
+            <div class="account-actions">
+                <button type="submit" class="account-primary-btn">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Lưu thay đổi
+                </button>
+
+                <a href="@Url.Action("Index", "Account")"
+                   class="account-secondary-btn">
+                    Quay lại
+                </a>
+            </div>
+        }
+    </div>
+</div>

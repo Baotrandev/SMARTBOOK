@@ -1,0 +1,136 @@
+﻿
+@model SmartBook.Models.AllReviewsViewModel
+
+@using System
+@using System.Linq
+
+@{
+    ViewBag.Title = "Đánh giá khách hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="@Url.Content("~/Content/reviews-page.css")" rel="stylesheet" />
+
+<div class="all-reviews-page">
+
+    <section class="reviews-hero">
+        <div class="reviews-hero-content">
+            <span class="reviews-eyebrow">SMARTBOOK COMMUNITY</span>
+            <h1>Khách hàng nói gì về sách?</h1>
+            <p>
+                Những cảm nhận và chia sẻ từ độc giả
+                đã trải nghiệm các cuốn sách tại SmartBook.
+            </p>
+        </div>
+    </section>
+
+    <section class="reviews-summary">
+
+        <div class="summary-card">
+            <span class="summary-label">Tổng lượt đánh giá</span>
+            <strong>@Model.TotalReviews</strong>
+            <small>Đánh giá đã được duyệt</small>
+        </div>
+
+        <div class="summary-card">
+            <span class="summary-label">Điểm trung bình</span>
+            <strong>@Model.AverageRating.ToString("0.0") / 5</strong>
+
+            <div class="summary-stars">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <span class="@(i <= Math.Round(Model.AverageRating) ? "active" : "")">★</span>
+                }
+            </div>
+        </div>
+
+    </section>
+
+    <section class="all-reviews-content">
+
+        <div class="reviews-section-heading">
+            <div>
+                <h2>Đánh giá từ độc giả</h2>
+                <p>Cảm nhận chân thực về những cuốn sách yêu thích.</p>
+            </div>
+        </div>
+
+        @if (Model.Reviews != null && Model.Reviews.Any())
+        {
+            <div class="all-review-list">
+
+                @foreach (var review in Model.Reviews)
+                {
+                    <article class="all-review-card">
+
+                        <div class="all-review-top">
+
+                            <div class="review-customer">
+                                <div class="customer-avatar">
+                                    @(
+                                        !string.IsNullOrWhiteSpace(review.CustomerName)
+                                        ? review.CustomerName.Substring(0, 1).ToUpper()
+                                        : "K"
+                                    )
+                                </div>
+
+                                <div>
+                                    <strong>@review.CustomerName</strong>
+                                    <small>
+                                        @review.ReviewDate.ToString("dd/MM/yyyy")
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="all-review-stars">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <span class="@(i <= review.Rating ? "active" : "")">★</span>
+                                }
+                            </div>
+
+                        </div>
+
+                        <div class="review-book-name">
+                            <span>Sách được đánh giá:</span>
+
+                            <a href="@Url.Action(
+                                "Details",
+                                "Products",
+                                new { id = review.BookId })">
+                                @review.BookTitle
+                            </a>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(review.ReviewTitle))
+                        {
+                            <h3>@review.ReviewTitle</h3>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(review.ReviewContent))
+                        {
+                            <p class="all-review-text">
+                                @review.ReviewContent
+                            </p>
+                        }
+
+                    </article>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="reviews-empty">
+                <h3>Chưa có đánh giá nào</h3>
+                <p>Hãy khám phá sách và chia sẻ cảm nhận của bạn nhé!</p>
+
+                <a href="@Url.Action("Index", "Products")">
+                    Khám phá sách
+                </a>
+            </div>
+        }
+
+    </section>
+
+</div>

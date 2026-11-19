@@ -1,0 +1,64 @@
+﻿
+@model SmartBook.Models.customer
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Thông tin cá nhân";
+}
+
+<div class="account-page">
+    <div class="account-page-heading">
+        <h2>Thông tin cá nhân</h2>
+        <p>Quản lý thông tin tài khoản SmartBook của bạn.</p>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <div class="account-card">
+        <div class="account-card-title">
+            <i class="fa-solid fa-user-circle"></i>
+            Hồ sơ của tôi
+        </div>
+
+        <div class="account-info-row">
+            <span>Họ và tên</span>
+            <strong>@Model.full_name</strong>
+        </div>
+
+        <div class="account-info-row">
+            <span>Email</span>
+            <strong>@Model.email</strong>
+        </div>
+
+        <div class="account-info-row">
+            <span>Số điện thoại</span>
+            <strong>@(string.IsNullOrEmpty(Model.phone) ? "Chưa cập nhật" : Model.phone)</strong>
+        </div>
+
+        <div class="account-info-row">
+            <span>Ngày tạo tài khoản</span>
+            <strong>
+                @Convert.ToDateTime(Model.created_at).ToString("dd/MM/yyyy")
+            </strong>
+        </div>
+
+        <div class="account-actions">
+            <a href="@Url.Action("EditProfile", "Account")"
+               class="account-primary-btn">
+                <i class="fa-solid fa-pen"></i>
+                Chỉnh sửa hồ sơ
+            </a>
+
+            <a href="@Url.Action("ChangePassword", "Account")"
+               class="account-secondary-btn">
+                <i class="fa-solid fa-lock"></i>
+                Đổi mật khẩu
+            </a>
+        </div>
+    </div>
+</div>

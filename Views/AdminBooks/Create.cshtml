@@ -1,0 +1,302 @@
+﻿
+@model SmartBook.Models.book
+
+@{
+    ViewBag.Title = "Thêm sách mới";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string imagePath = "~/Images/no-image.png";
+
+    if (Model != null && !string.IsNullOrWhiteSpace(Model.cover_image_url))
+    {
+        imagePath = Model.cover_image_url;
+    }
+}
+
+<style>
+    .create-book {
+        max-width: 950px;
+        margin: 35px auto;
+        padding: 30px;
+        background: #fff;
+        border: 1px solid #e5ebe7;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,.05);
+        font-family: 'Be Vietnam Pro', sans-serif;
+    }
+
+        .create-book h2 {
+            color: #183b36;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .create-book label {
+            color: #294b42;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .create-book .form-control {
+            border: 1px solid #dce8e1;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+            .create-book .form-control:focus {
+                border-color: #39766b;
+                box-shadow: 0 0 0 3px rgba(57,118,107,.1);
+            }
+
+    .image-preview {
+        margin-top: 15px;
+        padding: 12px;
+        width: 155px;
+        background: #f5faf7;
+        border: 1px dashed #a8c5b7;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+        .image-preview img {
+            width: 120px;
+            height: 160px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+    .btn-save {
+        background: #39766b;
+        color: white;
+        border: none;
+        padding: 11px 25px;
+        border-radius: 8px;
+        font-weight: 700;
+    }
+
+        .btn-save:hover {
+            background: #183b36;
+            color: white;
+        }
+
+    .btn-back {
+        background: #718078;
+        color: white;
+        padding: 11px 25px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+        .btn-back:hover {
+            color: white;
+            background: #52665e;
+            text-decoration: none;
+        }
+</style>
+
+<div class="container">
+
+    <div class="create-book">
+
+        <h2>THÊM SÁCH MỚI</h2>
+        <p class="text-muted">
+            Điền thông tin để thêm sách vào hệ thống SmartBook.
+        </p>
+
+        <hr />
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <strong>Không thể lưu sách!</strong>
+                    @Html.ValidationSummary(false)
+                </div>
+            }
+
+            <div class="form-group mb-3">
+                <label>Tên sách *</label>
+                @Html.TextBoxFor(m => m.book_title,
+                         new { @class = "form-control", required = "required" })
+                @Html.ValidationMessageFor(m => m.book_title,
+                         "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group mb-3">
+                <label>ISBN *</label>
+                @Html.TextBoxFor(m => m.ISBN,
+                         new { @class = "form-control", required = "required" })
+                @Html.ValidationMessageFor(m => m.ISBN,
+                         "", new { @class = "text-danger" })
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label>Danh mục</label>
+                    @Html.DropDownListFor(m => m.category_id,
+                             (SelectList)ViewBag.CategoryList,
+                             "-- Chọn danh mục --",
+                             new { @class = "form-control" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Nhà xuất bản</label>
+                    @Html.DropDownListFor(m => m.publisher_id,
+                             (SelectList)ViewBag.PublisherList,
+                             "-- Chọn nhà xuất bản --",
+                             new { @class = "form-control" })
+                </div>
+
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Mô tả sách</label>
+                @Html.TextAreaFor(m => m.description,
+                         new { @class = "form-control", rows = "4" })
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label>Giá gốc</label>
+                    @Html.TextBoxFor(m => m.original_price,
+                             new { @class = "form-control", type = "number", min = "0", step = "1000" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Giá bán</label>
+                    @Html.TextBoxFor(m => m.sale_price,
+                             new { @class = "form-control", type = "number", min = "0", step = "1000" })
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label>Ngày xuất bản</label>
+                    @Html.TextBoxFor(m => m.publication_date,
+                             "{0:yyyy-MM-dd}",
+                             new { @class = "form-control", type = "date" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Số trang</label>
+                    @Html.TextBoxFor(m => m.page_count,
+                             new { @class = "form-control", type = "number", min = "1" })
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label>Ngôn ngữ</label>
+                    @Html.TextBoxFor(m => m.language,
+                             new { @class = "form-control", placeholder = "Tiếng Việt" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Hình thức sách</label>
+                    @Html.TextBoxFor(m => m.book_format,
+                             new { @class = "form-control", placeholder = "Bìa mềm / Bìa cứng" })
+                </div>
+
+            </div>
+
+            <div class="form-group mb-3">
+
+                <label>Đường dẫn ảnh bìa</label>
+
+                @Html.TextBoxFor(m => m.cover_image_url,
+                         new
+                         {
+                             @class = "form-control",
+                             id = "coverImageUrl",
+                             placeholder = "~/Images/ten-sach.jpg"
+                         })
+
+                <small class="text-muted">
+                    Nhập đường dẫn ảnh nằm trong thư mục Images.
+                </small>
+
+                <div class="image-preview">
+                    <img id="previewImage"
+                         src="@Url.Content(imagePath)"
+                         alt="Ảnh bìa sách" />
+
+                    <p class="text-muted mt-2 mb-0">
+                        Xem trước ảnh bìa
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="form-group mb-4">
+
+                <label>Trạng thái</label>
+
+                @Html.DropDownListFor(m => m.status,
+                         new SelectList(new[]
+                         {
+                        "Dang ban",
+                        "Ngung kinh doanh",
+                        "Het hang"
+                         }),
+                         "-- Chọn trạng thái --",
+                         new { @class = "form-control" })
+
+            </div>
+
+            <hr />
+
+            <button type="submit" class="btn-save">
+                <i class="fa fa-save"></i> Lưu sách
+            </button>
+
+            @Html.ActionLink("Quay lại", "Index", null,
+                     new { @class = "btn-back" })
+        }
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        var input = document.getElementById("coverImageUrl");
+        var preview = document.getElementById("previewImage");
+
+        var defaultImage = '@Url.Content("~/Images/no-image.png")';
+
+        input.addEventListener("input", function () {
+
+            var path = this.value.trim();
+
+            if (path === "") {
+                preview.src = defaultImage;
+                return;
+            }
+
+            if (path.indexOf("~/") === 0) {
+                path = path.substring(2);
+            }
+
+            preview.src = '@Url.Content("~/")' + path;
+
+        });
+
+        preview.addEventListener("error", function () {
+            this.src = defaultImage;
+        });
+
+    });
+</script>

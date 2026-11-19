@@ -1,0 +1,221 @@
+﻿
+.all-reviews-page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 30px 20px 70px;
+    color: #26352f;
+    font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.reviews-hero {
+    background: linear-gradient(120deg, #183b36, #39766b);
+    border-radius: 20px;
+    padding: 55px 45px;
+    color: #fff;
+    margin-bottom: 28px;
+}
+
+.reviews-eyebrow {
+    color: #f3c878;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.reviews-hero h1 {
+    font-size: 32px;
+    margin: 15px 0;
+    font-weight: 800;
+}
+
+.reviews-hero p {
+    max-width: 650px;
+    line-height: 1.8;
+    color: #e4efeb;
+    margin: 0;
+}
+
+.reviews-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 45px;
+}
+
+.summary-card {
+    background: #fff;
+    border: 1px solid #e8eee9;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.04);
+}
+
+    .summary-label,
+    .summary-card small {
+        display: block;
+        color: #78847e;
+        font-size: 13px;
+    }
+
+    .summary-card strong {
+        display: block;
+        font-size: 30px;
+        color: #183b36;
+        margin: 10px 0;
+    }
+
+.summary-stars span,
+.all-review-stars span {
+    color: #d8d8d8;
+    font-size: 19px;
+}
+
+    .summary-stars span.active,
+    .all-review-stars span.active {
+        color: #e9a23b;
+    }
+
+.reviews-section-heading {
+    margin-bottom: 22px;
+}
+
+    .reviews-section-heading h2 {
+        font-size: 24px;
+        color: #183b36;
+        margin-bottom: 8px;
+    }
+
+    .reviews-section-heading p {
+        color: #78847e;
+        margin: 0;
+    }
+
+.all-review-list {
+    display: grid;
+    gap: 18px;
+}
+
+.all-review-card {
+    background: #fff;
+    border: 1px solid #e8eee9;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 5px 18px rgba(0,0,0,.035);
+}
+
+.all-review-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.review-customer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.customer-avatar {
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    background: #e7f0eb;
+    color: #24594c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.review-customer strong,
+.review-customer small {
+    display: block;
+}
+
+.review-customer small {
+    color: #929b96;
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+.review-book-name {
+    margin: 20px 0 12px;
+    padding: 11px 14px;
+    background: #f5f8f5;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+    .review-book-name span {
+        color: #7c8982;
+    }
+
+    .review-book-name a {
+        color: #24594c;
+        font-weight: 700;
+        text-decoration: none;
+        margin-left: 5px;
+    }
+
+        .review-book-name a:hover {
+            text-decoration: underline;
+        }
+
+.all-review-card h3 {
+    font-size: 17px;
+    color: #263b32;
+    margin: 15px 0 8px;
+}
+
+.all-review-text {
+    color: #66736c;
+    line-height: 1.8;
+    margin: 0;
+    white-space: pre-line;
+}
+
+.reviews-empty {
+    text-align: center;
+    padding: 55px 20px;
+    background: #f7f9f7;
+    border-radius: 16px;
+}
+
+    .reviews-empty h3 {
+        color: #183b36;
+    }
+
+    .reviews-empty p {
+        color: #78847e;
+    }
+
+    .reviews-empty a {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 12px 22px;
+        background: #24594c;
+        color: #fff;
+        border-radius: 8px;
+        text-decoration: none;
+    }
+
+@media (max-width: 650px) {
+    .reviews-hero {
+        padding: 35px 22px;
+    }
+
+        .reviews-hero h1 {
+            font-size: 25px;
+        }
+
+    .reviews-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .all-review-card {
+        padding: 18px;
+    }
+}
