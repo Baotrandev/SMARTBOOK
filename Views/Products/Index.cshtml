@@ -8,14 +8,10 @@
     ViewBag.Title = "Sách - SmartBook";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var categories = ViewBag.Categories as
-        IEnumerable<SmartBook.Models.category>;
-
+    var categories = ViewBag.Categories as IEnumerable<SmartBook.Models.category>;
     int? selectedCategory = ViewBag.SelectedCategory;
 
-    // ds tác giả theo mã sách
-    var authorsByBook =
-        ViewBag.AuthorsByBook as Dictionary<int, string>;
+    var authorsByBook = ViewBag.AuthorsByBook as Dictionary<int, string>;
 }
 
 <style>
@@ -24,9 +20,10 @@
         margin: 35px auto;
         padding: 0 20px;
         color: #24463c;
+        font-family: 'Be Vietnam Pro', sans-serif;
     }
 
-    /* banner giới thiệu */
+    /* Banner giới thiệu */
     .books-hero {
         background: linear-gradient(120deg, #173f37, #39796a);
         color: white;
@@ -62,9 +59,8 @@
         margin-top: 25px;
     }
 
-    /* banner sale 50% */
+    /* Banner sale */
     .sale-banner {
-        position: relative;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -79,20 +75,7 @@
         box-shadow: 0 12px 30px rgba(24, 59, 54, .15);
     }
 
-        .sale-banner::before {
-            content: "";
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            right: 15%;
-            top: -170px;
-            border: 45px solid rgba(255,255,255,.08);
-            border-radius: 50%;
-        }
-
     .sale-content {
-        position: relative;
-        z-index: 2;
         max-width: 620px;
     }
 
@@ -133,19 +116,15 @@
         color: #183b36;
         font-weight: 800;
         text-decoration: none;
-        transition: .3s;
     }
 
         .sale-button:hover {
             background: white;
             color: #183b36;
             text-decoration: none;
-            transform: translateY(-3px);
         }
 
     .sale-percent {
-        position: relative;
-        z-index: 2;
         min-width: 190px;
         text-align: center;
         font-size: 105px;
@@ -163,7 +142,7 @@
             margin-top: 12px;
         }
 
-    /* tiêu đề */
+    /* Tiêu đề */
     .books-heading {
         margin-bottom: 25px;
     }
@@ -178,7 +157,7 @@
             color: #888;
         }
 
-    /* danh mục */
+    /* Danh mục */
     .category-list {
         display: flex;
         flex-wrap: wrap;
@@ -205,7 +184,7 @@
             text-decoration: none;
         }
 
-    /* thông điệp */
+    /* Thông điệp */
     .category-message {
         background: #f7f5ed;
         border-left: 5px solid #d7b45f;
@@ -226,7 +205,7 @@
             margin: 9px 0 0;
         }
 
-    /* ds sách */
+    /* Danh sách sách */
     .book-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -246,6 +225,7 @@
             box-shadow: 0 12px 28px rgba(0,0,0,.09);
         }
 
+    /* Mỗi sách chỉ có một khung ảnh */
     .book-cover {
         height: 250px;
         padding: 15px;
@@ -256,8 +236,11 @@
     }
 
         .book-cover img {
-            width: 100%;
-            height: 100%;
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
         }
 
@@ -273,7 +256,6 @@
             min-height: 48px;
         }
 
-    /* tên tác giả */
     .book-author {
         display: flex;
         align-items: center;
@@ -281,19 +263,12 @@
         margin: 8px 0 12px;
         color: #8a7968;
         font-size: 13px;
-        font-weight: 500;
         min-height: 20px;
     }
 
         .book-author i {
             color: #b18b58;
             font-size: 12px;
-        }
-
-        .book-author span {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
     .book-description {
@@ -316,6 +291,51 @@
         text-decoration: line-through;
     }
 
+    .discount-label {
+        display: inline-block;
+        margin-top: 9px;
+        padding: 5px 9px;
+        border-radius: 5px;
+        background: #c83d32;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .book-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        margin-top: 15px;
+    }
+
+        .book-actions form {
+            margin: 0;
+        }
+
+    .add-cart-btn {
+        display: block;
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #39796a;
+        border-radius: 7px;
+        background: #39796a;
+        color: white;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: .25s;
+    }
+
+        .add-cart-btn:hover {
+            background: #173f37;
+            border-color: #173f37;
+        }
+
+        .add-cart-btn i {
+            margin-right: 6px;
+        }
+
     .book-button {
         display: block;
         background: #204e43;
@@ -328,47 +348,17 @@
         margin-top: 13px;
     }
 
-    /* khu nút mua */
-    .book-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 9px;
-        margin-top: 13px;
-    }
-
-    /* nút thêm vào giỏ */
-    .add-cart-btn {
-        display: block;
-        width: 100%;
-        padding: 11px;
-        border: 1px solid #39796a;
-        border-radius: 7px;
-        background: #39796a;
-        color: white;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: .3s;
-    }
-
-        .add-cart-btn:hover {
-            background: #173f37;
-            border-color: #173f37;
-            transform: translateY(-2px);
-        }
-
-    /* nút xem chi tiết */
-    .book-actions .book-button {
-        margin-top: 0;
-    }
-
-
         .book-button:hover {
             background: #39796a;
             color: white;
             text-decoration: none;
         }
 
+    .book-actions .book-button {
+        margin-top: 0;
+    }
+
+    /* Tiêu đề thể loại */
     .category-title {
         display: flex;
         justify-content: space-between;
@@ -402,7 +392,13 @@
         color: #777;
     }
 
-    /* responsive */
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .book-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
     @@media (max-width: 768px) {
         .book-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -435,79 +431,32 @@
             font-size: 75px;
             align-self: center;
         }
-        /* font trang sách */
-        .books-page,
-        .books-page * {
-            font-family: 'Be Vietnam Pro', sans-serif;
+    }
+
+    @@media (max-width: 480px) {
+        .book-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
         }
 
-        .books-hero h1,
-        .books-heading h2,
-        .category-title h3,
-        .book-detail h4 {
-            font-weight: 800;
+        .books-page {
+            padding: 0 10px;
         }
 
-        .book-author {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            font-size: 13px;
-            color: #8a7968;
-        }
-
-        .book-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
-            margin-top: 15px;
-        }
-
-            .book-actions form {
-                margin: 0;
-            }
-
-        .add-cart-btn {
-            width: 100%;
+        .book-detail {
             padding: 12px;
-            border: 1px solid #39766b;
-            border-radius: 8px;
-            background: #fff;
-            color: #28594b;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: .25s;
         }
-
-            .add-cart-btn:hover {
-                background: #39766b;
-                color: white;
-                transform: translateY(-2px);
-            }
-
-            .add-cart-btn i {
-                margin-right: 7px;
-            }
-
-        .book-actions .book-button {
-            margin-top: 0;
-        }
-
     }
 </style>
 
 <div class="books-page">
 
-    <!-- banner sale -->
+    <!-- Banner sale -->
     <section class="sale-banner">
         <div class="sale-content">
+            <span class="sale-label">SMARTBOOK SPECIAL OFFER</span>
 
-            <span class="sale-label">
-                SMARTBOOK SPECIAL OFFER
-            </span>
-
-            <h2>
-                SALE OFF <span>50%</span>
-            </h2>
+            <h2>SALE OFF <span>50%</span></h2>
 
             <p>
                 Ưu đãi đặc biệt dành cho những người yêu sách.
@@ -518,7 +467,6 @@
             <a href="#danh-sach-sach" class="sale-button">
                 MUA SÁCH NGAY →
             </a>
-
         </div>
 
         <div class="sale-percent">
@@ -527,9 +475,8 @@
         </div>
     </section>
 
-    <!-- banner giới thiệu -->
+    <!-- Banner giới thiệu -->
     <section class="books-hero">
-
         <small>SMARTBOOK COLLECTION</small>
 
         <h1>Mỗi cuốn sách, một thế giới mới</h1>
@@ -544,18 +491,12 @@
         <div class="hero-quote">
             “Đọc sách hôm nay, kiến tạo tương lai ngày mai.”
         </div>
-
     </section>
 
-    <!-- danh mục -->
+    <!-- Danh mục -->
     <div class="books-heading">
-
         <h2>Khám phá theo thể loại</h2>
-
-        <p>
-            Lựa chọn thể loại phù hợp với sở thích và nhu cầu của bạn.
-        </p>
-
+        <p>Lựa chọn thể loại phù hợp với sở thích và nhu cầu của bạn.</p>
     </div>
 
     <div class="category-list" id="danh-sach-sach">
@@ -576,13 +517,9 @@
                 </a>
             }
         }
-
     </div>
 
-    </section>
-
-
-    <!-- ds sách -->
+    <!-- Danh sách sách -->
     @if (Model != null && Model.Any())
     {
         var groups = Model.GroupBy(x =>
@@ -624,129 +561,164 @@
                 </div>
 
                 <div class="category-message">
-
-                    <div class="quote">
-                        “@quote”
-                    </div>
-
+                    <div class="quote">“@quote”</div>
                     <p>@message</p>
-
                 </div>
 
                 <div class="book-grid">
 
                     @foreach (var book in group)
                     {
+                        var bookTitle = (book.book_title ?? "").Trim().ToLowerInvariant();
                         var image = book.cover_image_url;
 
-                        if (String.IsNullOrWhiteSpace(image))
+                        if (bookTitle == "hạ đỏ")
                         {
-                            image = Url.Content("~/Images/no-image.png");
+                            image = "~/Images/hado.jpg";
                         }
-                        else if (image.StartsWith("~/"))
+                        else if (bookTitle == "mùa hè không tên")
                         {
-                            image = Url.Content(image);
+                            image = "~/Images/muahekhongtenvaqua.jpg";
                         }
-                        else if (!image.StartsWith("http") && !image.StartsWith("/"))
+                        else if (bookTitle == "ngày xưa có một chuyện tình")
                         {
-                            image = Url.Content("~/Images/" + image);
+                            image = "~/Images/ngayxuacomotchuyentinh.jpg";
+                        }
+                        else if (bookTitle == "ngồi khóc trên cây")
+                        {
+                            image = "~/Images/ngoikhoctrencay.jpg";
+                        }
+                        else if (bookTitle == "tiệm sách của nàng")
+                        {
+                            image = "~/Images/tiemsachcuanang.jpg";
+                        }
+                        else if (bookTitle == "tôi thấy hoa vàng trên cỏ xanh")
+                        {
+                            image = "~/Images/toithayhoavangtrencoxanh.jpg";
+                        }
+
+                        if (string.IsNullOrWhiteSpace(image))
+                        {
+                            image = Url.Content("~/Images/nen.jpg");
+                        }
+                        else
+                        {
+                            image = image.Trim();
+
+                            if (image.StartsWith("~/"))
+                            {
+                                image = Url.Content(image);
+                            }
+                            else if (image.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                                  || image.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                                  || image.StartsWith("/", StringComparison.Ordinal))
+                            {
+
+                            }
+                            else if (image.StartsWith("Images/", StringComparison.OrdinalIgnoreCase))
+                            {
+                                image = Url.Content("~/" + image);
+                            }
+                            else
+                            {
+                                image = Url.Content("~/Images/" + image);
+                            }
+                        }
+
+                        var authorName = "Đang cập nhật tác giả";
+
+                        if (authorsByBook != null &&
+                            authorsByBook.ContainsKey(book.book_id))
+                        {
+                            authorName = authorsByBook[book.book_id];
+                        }
+
+                        int discount = 0;
+
+                        if (book.original_price > 0 &&
+                            book.sale_price < book.original_price)
+                        {
+                            discount = (int)Math.Round(
+                                (1 - (decimal)book.sale_price /
+                                (decimal)book.original_price) * 100
+                            );
                         }
 
                         <div class="book-card">
 
-                            <!-- ảnh bìa -->
+                            <!-- Một ảnh bìa duy nhất -->
                             <a href="@Url.Action("Details", "Products",
                                 new { id = book.book_id })"
                                class="book-cover">
 
                                 <img src="@image"
-                                     alt="@book.book_title" />
+                                     alt="@book.book_title"
+                                     onerror="this.onerror=null;this.src='@Url.Content("~/Images/nen.jpg")';" />
 
                             </a>
 
+                            <!-- Thông tin sách -->
                             <div class="book-detail">
 
-                                <!-- tên sách -->
                                 <h4>@book.book_title</h4>
-
 
                                 <div class="book-author">
                                     <i class="fa-solid fa-pen-nib"></i>
-
-                                    <span>
-                                        @if (authorsByBook != null &&
-                                             authorsByBook.ContainsKey(book.book_id) &&
-                                             !string.IsNullOrWhiteSpace(authorsByBook[book.book_id]))
-                                        {
-                                            @authorsByBook[book.book_id]
-                                        }
-                                        else
-                                        {
-                                            @:Đang cập nhật tác giả
-                                        }
-                                    </span>
+                                    <span>@authorName</span>
                                 </div>
 
-                                <!-- mô tả -->
                                 <p class="book-description">
                                     @book.description
                                 </p>
 
-                                <!-- giá bán -->
                                 <div class="book-price">
                                     @String.Format("{0:N0} đ", book.sale_price)
                                 </div>
 
-                                <!-- giá gốc -->
                                 <div class="book-original-price">
-                                    Giá gốc:
-                                    @String.Format("{0:N0} đ", book.original_price)
+                                    Giá gốc: @String.Format("{0:N0} đ", book.original_price)
                                 </div>
 
+                                @if (discount > 0)
+                                {
+                                    <span class="discount-label">
+                                        Giảm @discount%
+                                    </span>
+                                }
 
-                                <!-- mấy nút bấm -->
                                 <div class="book-actions">
+
                                     @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
                                     {
                                         @Html.AntiForgeryToken()
-
                                         @Html.Hidden("id", book.book_id)
+                                        @Html.Hidden("quantity", 1)
 
-                                        <input type="number"
-                                               name="quantity"
-                                               value="1"
-                                               min="1" />
-
-                                        <button type="submit">
+                                        <button type="submit" class="add-cart-btn">
                                             <i class="fa-solid fa-cart-plus"></i>
                                             Thêm vào giỏ hàng
                                         </button>
                                     }
 
                                     <a href="@Url.Action("Details", "Products",
-                                       new { id = book.book_id })"
+                                        new { id = book.book_id })"
                                        class="book-button">
                                         Xem chi tiết
                                         <i class="fa-solid fa-arrow-right"></i>
                                     </a>
 
                                 </div>
-
-
                             </div>
-
                         </div>
                     }
 
                 </div>
-
             </section>
         }
     }
     else
     {
         <div class="empty-books">
-
             <h3>Chưa có sách trong danh mục này</h3>
 
             <p>
@@ -757,7 +729,6 @@
                class="book-button">
                 Xem tất cả sách
             </a>
-
         </div>
     }
 

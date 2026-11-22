@@ -4,118 +4,291 @@
 @{
     ViewBag.Title = "Chỉnh sửa sách";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var currentImage = Model.cover_image_url;
+
+    if (!string.IsNullOrWhiteSpace(currentImage))
+    {
+        currentImage = currentImage.Trim();
+
+        if (!currentImage.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            && !currentImage.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            && !currentImage.StartsWith("~/")
+            && !currentImage.StartsWith("/"))
+        {
+            currentImage = currentImage.StartsWith("Images/", StringComparison.OrdinalIgnoreCase)
+                ? "~/" + currentImage
+                : "~/Images/" + currentImage;
+        }
+    }
+
+    if (string.IsNullOrWhiteSpace(currentImage))
+    {
+        currentImage = "~/Images/no-image.png";
+    }
 }
 
-<div class="container mt-4">
-    <h2>CHỈNH SỬA THÔNG TIN SÁCH</h2>
-    <hr />
-
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-        @Html.HiddenFor(m => m.book_id)
-
-        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
-
-        <div class="form-group mb-3">
-            <label>Tên sách</label>
-            @Html.TextBoxFor(m => m.book_title,
-                     new { @class = "form-control" })
-        </div>
-
-        <div class="form-group mb-3">
-            <label>ISBN</label>
-            @Html.TextBoxFor(m => m.ISBN,
-                     new { @class = "form-control" })
-        </div>
-
-        <div class="form-group mb-3">
-            <label>Danh mục</label>
-            @Html.DropDownListFor(m => m.category_id,
-                     (SelectList)ViewBag.CategoryList,
-                     "-- Chọn danh mục --",
-                     new { @class = "form-control" })
-        </div>
-
-        <div class="form-group mb-3">
-            <label>Nhà xuất bản</label>
-            @Html.DropDownListFor(m => m.publisher_id,
-                     (SelectList)ViewBag.PublisherList,
-                     "-- Chọn nhà xuất bản --",
-                     new { @class = "form-control" })
-        </div>
-
-        <div class="form-group mb-3">
-            <label>Mô tả</label>
-            @Html.TextAreaFor(m => m.description,
-                     new { @class = "form-control", rows = "4" })
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label>Giá gốc</label>
-                @Html.TextBoxFor(m => m.original_price,
-                         new { @class = "form-control", type = "number", min = "0", step = "1000" })
-            </div>
-
-            <div class="col-md-6 mb-3">
-                <label>Giá bán</label>
-                @Html.TextBoxFor(m => m.sale_price,
-                         new { @class = "form-control", type = "number", min = "0", step = "1000" })
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label>Ngày xuất bản</label>
-                @Html.TextBoxFor(m => m.publication_date,
-                         "{0:yyyy-MM-dd}",
-                         new { @class = "form-control", type = "date" })
-            </div>
-
-            <div class="col-md-6 mb-3">
-                <label>Số trang</label>
-                @Html.TextBoxFor(m => m.page_count,
-                         new { @class = "form-control", type = "number", min = "1" })
-            </div>
-        </div>
-
-        <div class="form-group mb-3">
-            <label>Ngôn ngữ</label>
-            @Html.TextBoxFor(m => m.language,
-                     new { @class = "form-control" })
-        </div>
-
-        <div class="form-group mb-3">
-            <label>Hình thức</label>
-            @Html.TextBoxFor(m => m.book_format,
-                     new { @class = "form-control" })
-        </div>
-
-        <div class="form-group mb-3">
-            <label>Ảnh bìa</label>
-            @Html.TextBoxFor(m => m.cover_image_url,
-                     new { @class = "form-control" })
-        </div>
-
-        <div class="form-group mb-3">
-            <label>Trạng thái</label>
-            @Html.DropDownListFor(m => m.status,
-                     new SelectList(new[]
-                     {
-                    "Dang ban",
-                    "Ngung kinh doanh",
-                    "Het hang"
-                         }, Model.status),
-                     "-- Chọn trạng thái --",
-                     new { @class = "form-control" })
-        </div>
-
-        <button type="submit" class="btn btn-success">
-            Cập nhật sách
-        </button>
-
-        @Html.ActionLink("Quay lại", "Index", null,
-                 new { @class = "btn btn-secondary" })
+<style>
+    .edit-book-page {
+        max-width: 1000px;
+        margin: 35px auto;
+        padding: 30px;
+        background: #fff;
+        border: 1px solid #e3ece6;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0,0,0,.05);
+        font-family: 'Be Vietnam Pro', sans-serif;
     }
+
+        .edit-book-page h2 {
+            color: #183b36;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .edit-book-page .form-label {
+            color: #31584b;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .edit-book-page .form-control {
+            border: 1px solid #dce9e0;
+            border-radius: 8px;
+            padding: 11px 13px;
+        }
+
+            .edit-book-page .form-control:focus {
+                border-color: #39766b;
+                box-shadow: 0 0 0 3px rgba(57,118,107,.1);
+            }
+
+    .current-image-box {
+        width: 210px;
+        height: 260px;
+        padding: 12px;
+        background: #f1f7f3;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+
+        .current-image-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+    .image-note {
+        color: #81938a;
+        font-size: 12px;
+        margin-top: 7px;
+    }
+
+    .btn-update {
+        background: #39766b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 22px;
+        font-weight: 700;
+    }
+
+        .btn-update:hover {
+            background: #234e43;
+            color: white;
+        }
+</style>
+
+<div class="container">
+    <div class="edit-book-page">
+
+        <h2>CHỈNH SỬA THÔNG TIN SÁCH</h2>
+        <p class="text-muted">Cập nhật thông tin và hình ảnh bìa sách.</p>
+        <hr />
+
+        @using (Html.BeginForm(
+            "Edit",
+            "AdminBooks",
+            FormMethod.Post,
+            new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.book_id)
+
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+            <div class="row">
+                <div class="col-md-7">
+
+                    <div class="mb-3">
+                        <label class="form-label">Tên sách</label>
+                        @Html.TextBoxFor(m => m.book_title,
+                                 new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.book_title, "",
+                                 new { @class = "text-danger" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">ISBN</label>
+                        @Html.TextBoxFor(m => m.ISBN,
+                                 new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.ISBN, "",
+                                 new { @class = "text-danger" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Danh mục</label>
+                        @Html.DropDownListFor(m => m.category_id,
+                         (SelectList)ViewBag.CategoryList,
+                         "-- Chọn danh mục --",
+                         new
+            {
+              @class = "form-control",
+              required = "required"
+          })
+
+                        @Html.ValidationMessageFor(m => m.category_id,
+                            "",
+                            new { @class = "text-danger" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nhà xuất bản</label>
+                        @Html.DropDownListFor(m => m.publisher_id,
+                                 (SelectList)ViewBag.PublisherList,
+                                 "-- Chọn nhà xuất bản --",
+                                 new { @class = "form-control" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả sách</label>
+                        @Html.TextAreaFor(m => m.description,
+                                 new { @class = "form-control", rows = "4" })
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giá gốc</label>
+                            @Html.TextBoxFor(m => m.original_price,
+                                     new
+                                     {
+                                         @class = "form-control",
+                                         type = "number",
+                                         min = "0",
+                                         step = "1000"
+                                     })
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giá bán</label>
+                            @Html.TextBoxFor(m => m.sale_price,
+                                     new
+                                     {
+                                         @class = "form-control",
+                                         type = "number",
+                                         min = "0",
+                                         step = "1000"
+                                     })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày xuất bản</label>
+                            @Html.TextBoxFor(m => m.publication_date,
+                                     "{0:yyyy-MM-dd}",
+                                     new
+                                     {
+                                         @class = "form-control",
+                                         type = "date"
+                                     })
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số trang</label>
+                            @Html.TextBoxFor(m => m.page_count,
+                                     new
+                                     {
+                                         @class = "form-control",
+                                         type = "number",
+                                         min = "1"
+                                     })
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ngôn ngữ</label>
+                        @Html.TextBoxFor(m => m.language,
+                                 new { @class = "form-control" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Hình thức</label>
+                        @Html.TextBoxFor(m => m.book_format,
+                                 new { @class = "form-control" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Trạng thái</label>
+                        @Html.DropDownListFor(m => m.status,
+                                 new SelectList(new[]
+                                 {
+                                "Dang ban",
+                                "Ngung kinh doanh",
+                                "Het hang"
+                         }, Model.status),
+                                 "-- Chọn trạng thái --",
+                                 new { @class = "form-control" })
+                    </div>
+
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label">Ảnh bìa hiện tại</label>
+
+                    <div class="current-image-box">
+                        <img id="imagePreview"
+                             src="@Url.Content(currentImage)"
+                             alt="@Model.book_title"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/Images/no-image.png")';" />
+                    </div>
+
+                    <label class="form-label">Chọn ảnh bìa mới</label>
+
+                    <input type="file"
+                           id="imageFile"
+                           name="imageFile"
+                           class="form-control"
+                           accept=".jpg,.jpeg,.png,.webp" />
+
+                    <p class="image-note">
+                        Hỗ trợ JPG, JPEG, PNG, WEBP. Tối đa 5 MB.
+                        Không chọn ảnh mới nếu muốn giữ ảnh hiện tại.
+                    </p>
+                </div>
+            </div>
+
+            <hr />
+
+            <button type="submit" class="btn btn-update">
+                <i class="fa-solid fa-floppy-disk"></i>
+                Cập nhật sách
+            </button>
+
+            @Html.ActionLink("Quay lại", "Index", null,
+                     new { @class = "btn btn-secondary ms-2" })
+        }
+    </div>
 </div>
+
+<script>document.getElementById("imageFile").addEventListener("change", function () {
+        var file = this.files[0];
+
+        if (file) {
+            var preview = document.getElementById("imagePreview");
+            preview.src = URL.createObjectURL(file);
+        }
+    });</script>
